@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { FaWhatsapp } from 'react-icons/fa6'
 import { FiCompass, FiHome, FiKey, FiMail } from 'react-icons/fi'
 import Link from 'next/link'
+import { HeaderUserButton } from '@/components/auth/HeaderUserButton'
 import { Container } from '@/design-system/components/Container'
 import { ButtonLink } from '@/design-system/components/ButtonLink'
 import { cn } from '@/lib/cn'
@@ -181,7 +182,7 @@ export function SiteHeader({ content, ctas }: SiteHeaderProps) {
               aria-label={ctas.primary.label}
               href={ctas.primary.href}
               size="sm"
-              variant="hero"
+              variant="brand"
               className="min-w-40"
             >
               <span className="inline-flex items-center gap-2 whitespace-nowrap">
@@ -204,6 +205,7 @@ export function SiteHeader({ content, ctas }: SiteHeaderProps) {
                 {ctas.secondary.label}
               </span>
             </ButtonLink>
+            <HeaderUserButton isScrolled={isScrolled} />
           </div>
         </div>
 
@@ -245,7 +247,7 @@ export function SiteHeader({ content, ctas }: SiteHeaderProps) {
                 aria-label={ctas.primary.label}
                 href={ctas.primary.href}
                 size="sm"
-                variant="hero"
+                variant="brand"
                 className="w-full"
               >
                 <span className="inline-flex items-center gap-2 whitespace-nowrap">

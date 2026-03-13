@@ -1,11 +1,13 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { ResidencesPage } from '@/routes/ResidencesPage'
 import { ResidenceDetailPage } from '@/routes/ResidenceDetailPage'
+import { ApiError } from '@/services/apiClient'
 import { DEFAULT_GUEST_DETAILS } from '@/types/guests'
 import type { ResidenceDetail } from '@/types/content'
 
 const replaceSpy = vi.fn()
+const pushSpy = vi.fn()
 const setSelectedRangeSpy = vi.fn()
 const setSelectedGuestDetailsSpy = vi.fn()
 const setSearchParamsSpy = vi.fn()
@@ -13,6 +15,7 @@ const openFiltersPanelSpy = vi.fn()
 const closeFiltersPanelSpy = vi.fn()
 const showNotificationSpy = vi.fn()
 const dynamicComponentPropsSpy = vi.fn()
+const bookingPanelPropsSpy = vi.fn()
 
 let detailSearchParams = new URLSearchParams()
 let residencesSearchParams = new URLSearchParams()
@@ -21,7 +24,10 @@ const mockUseBooking = vi.fn()
 const mockUseUrlSearchParams = vi.fn()
 const mockUseResidences = vi.fn()
 const mockUseResidenceDetail = vi.fn()
+const mockUseResidenceAvailability = vi.fn()
 const mockUsePricing = vi.fn()
+const mockCreateCheckoutSession = vi.fn()
+let isAuthenticated = true
 
 vi.mock('next/dynamic', () => ({
   default: () => {
@@ -35,7 +41,7 @@ vi.mock('next/dynamic', () => ({
 vi.mock('next/navigation', () => ({
   useParams: () => ({ slug: 'villa-azul' }),
   usePathname: () => '/residences/villa-azul',
-  useRouter: () => ({ replace: replaceSpy }),
+  useRouter: () => ({ replace: replaceSpy, push: pushSpy }),
   useSearchParams: () => detailSearchParams,
 }))
 
@@ -63,6 +69,10 @@ vi.mock('@/hooks/useResidenceDetail', () => ({
   useResidenceDetail: (slug: string | undefined) => mockUseResidenceDetail(slug),
 }))
 
+vi.mock('@/hooks/useResidenceAvailability', () => ({
+  useResidenceAvailability: (residenceId: string | undefined) => mockUseResidenceAvailability(residenceId),
+}))
+
 vi.mock('@/hooks/usePricing', () => ({
   usePricing: (slug: string | undefined, checkin: string | undefined, checkout: string | undefined) =>
     mockUsePricing(slug, checkin, checkout),
@@ -70,6 +80,27 @@ vi.mock('@/hooks/usePricing', () => ({
 
 vi.mock('@/context/booking-context', () => ({
   useBooking: () => mockUseBooking(),
+}))
+
+vi.mock('@/context/auth-context', () => ({
+  useAuth: () => ({
+    isAuthenticated,
+  }),
+}))
+
+vi.mock('@/services/bookingRequestService', () => ({
+  bookingRequestService: {
+    createCheckoutSession: (payload: unknown) => mockCreateCheckoutSession(payload),
+    continueCheckoutAsGuest: vi.fn(),
+  },
+  getCheckoutSessionErrorDetail: (error: unknown) => {
+    if (!(error instanceof ApiError) || !error.body || typeof error.body !== 'object') {
+      return null
+    }
+
+    const detail = (error.body as { detail?: unknown }).detail
+    return typeof detail === 'string' ? detail : null
+  },
 }))
 
 vi.mock('@/components/home/ResidenceCard', () => ({
@@ -89,7 +120,14 @@ vi.mock('@/components/residences/ResidencesResultsToolbar', () => ({
 }))
 
 vi.mock('@/components/residences/BookingPanel', () => ({
-  BookingPanel: () => null,
+  BookingPanel: (props: unknown) => {
+    bookingPanelPropsSpy(props)
+    return (
+      <button type="button" onClick={() => (props as { onBookNow?: () => void }).onBookNow?.()}>
+        Mock Book Now
+      </button>
+    )
+  },
 }))
 
 vi.mock('@/components/residences/ResidenceDetailSkeleton', () => ({
@@ -161,20 +199,33 @@ beforeAll(() => {
 
 beforeEach(() => {
   replaceSpy.mockReset()
+  pushSpy.mockReset()
   setSelectedRangeSpy.mockReset()
   setSelectedGuestDetailsSpy.mockReset()
   setSearchParamsSpy.mockReset()
   showNotificationSpy.mockReset()
   dynamicComponentPropsSpy.mockReset()
+  bookingPanelPropsSpy.mockReset()
   mockUseBooking.mockReset()
   mockUseUrlSearchParams.mockReset()
   mockUseResidences.mockReset()
   mockUseResidenceDetail.mockReset()
+  mockUseResidenceAvailability.mockReset()
   mockUsePricing.mockReset()
+  mockCreateCheckoutSession.mockReset()
+  isAuthenticated = true
 
+  mockUseResidenceAvailability.mockReturnValue({
+    blockedDates: [],
+    isLoading: false,
+  })
   mockUsePricing.mockReturnValue({
     pricing: null,
     isLoading: false,
+  })
+  mockCreateCheckoutSession.mockResolvedValue({
+    token: 'session-1',
+    accessState: 'authenticated',
   })
 
   mockUseResidenceDetail.mockReturnValue({
@@ -341,5 +392,210 @@ describe('booking flow integration', () => {
       'Minimum stay for this residence is 4 nights.',
       'info',
     )
+  })
+
+  it('navigates from detail to checkout preserving dates and guest breakdown', async () => {
+    detailSearchParams = new URLSearchParams('')
+
+    mockUseBooking.mockReturnValue({
+      selectedRange: {
+        from: '2026-08-10',
+        to: '2026-08-12',
+      },
+      selectedGuestDetails: {
+        adults: 2,
+        children: 1,
+        infants: 0,
+        pets: true,
+      },
+      setSelectedRange: setSelectedRangeSpy,
+      setSelectedGuestDetails: setSelectedGuestDetailsSpy,
+    })
+
+    render(<ResidenceDetailPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mock Book Now' }))
+
+    await waitFor(() => {
+      expect(pushSpy).toHaveBeenCalledWith(
+        '/residences/villa-azul/checkout?checkin=2026-08-10&checkout=2026-08-12&adults=2&children=1&infants=0&guests=3%2B&pets=true&checkoutSession=session-1',
+      )
+    })
+  })
+
+  it('opens the auth modal for unauthenticated users before checkout', async () => {
+    isAuthenticated = false
+    detailSearchParams = new URLSearchParams('')
+
+    mockUseBooking.mockReturnValue({
+      selectedRange: {
+        from: '2026-08-10',
+        to: '2026-08-12',
+      },
+      selectedGuestDetails: {
+        adults: 2,
+        children: 1,
+        infants: 0,
+        pets: true,
+      },
+      setSelectedRange: setSelectedRangeSpy,
+      setSelectedGuestDetails: setSelectedGuestDetailsSpy,
+    })
+
+    render(<ResidenceDetailPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mock Book Now' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: /register with us and unlock rewards/i })).toBeDefined()
+    })
+
+    expect(mockCreateCheckoutSession).not.toHaveBeenCalled()
+  })
+
+  it('routes unauthenticated users to register with preserved booking context', async () => {
+    isAuthenticated = false
+    detailSearchParams = new URLSearchParams('')
+
+    mockUseBooking.mockReturnValue({
+      selectedRange: {
+        from: '2026-08-10',
+        to: '2026-08-12',
+      },
+      selectedGuestDetails: {
+        adults: 2,
+        children: 1,
+        infants: 0,
+        pets: true,
+      },
+      setSelectedRange: setSelectedRangeSpy,
+      setSelectedGuestDetails: setSelectedGuestDetailsSpy,
+    })
+
+    render(<ResidenceDetailPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mock Book Now' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /register now/i })).toBeDefined()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /register now/i }))
+
+    expect(pushSpy).toHaveBeenCalledWith(
+      '/auth/register?returnUrl=%2Fresidences%2Fvilla-azul%3Fcheckin%3D2026-08-10%26checkout%3D2026-08-12%26adults%3D2%26children%3D1%26infants%3D0%26guests%3D3%252B%26pets%3Dtrue',
+    )
+  })
+
+  it('continues as guest from the auth modal when requested', async () => {
+    isAuthenticated = false
+    detailSearchParams = new URLSearchParams('')
+    mockCreateCheckoutSession.mockResolvedValue({
+      token: 'session-1',
+      accessState: 'anonymous',
+    })
+
+    mockUseBooking.mockReturnValue({
+      selectedRange: {
+        from: '2026-08-10',
+        to: '2026-08-12',
+      },
+      selectedGuestDetails: {
+        adults: 2,
+        children: 1,
+        infants: 0,
+        pets: true,
+      },
+      setSelectedRange: setSelectedRangeSpy,
+      setSelectedGuestDetails: setSelectedGuestDetailsSpy,
+    })
+
+    render(<ResidenceDetailPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mock Book Now' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /continue as guest/i })).toBeDefined()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /continue as guest/i }))
+
+    await waitFor(() => {
+      expect(pushSpy).toHaveBeenCalledWith(
+        '/residences/villa-azul/guest-details?checkoutSession=session-1&checkin=2026-08-10&checkout=2026-08-12&adults=2&children=1&infants=0&guests=3%2B&pets=true',
+      )
+    })
+  })
+
+  it('shows the backend checkout-session validation message when book now fails', async () => {
+    detailSearchParams = new URLSearchParams('')
+    mockCreateCheckoutSession.mockRejectedValue(
+      new ApiError('API request failed', 400, {
+        detail: 'Selected dates are unavailable for this residence.',
+        code: 'DATES_UNAVAILABLE',
+      }),
+    )
+
+    mockUseBooking.mockReturnValue({
+      selectedRange: {
+        from: '2026-08-10',
+        to: '2026-08-13',
+      },
+      selectedGuestDetails: {
+        adults: 2,
+        children: 0,
+        infants: 0,
+        pets: false,
+      },
+      setSelectedRange: setSelectedRangeSpy,
+      setSelectedGuestDetails: setSelectedGuestDetailsSpy,
+    })
+
+    render(<ResidenceDetailPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mock Book Now' }))
+
+    await waitFor(() => {
+      expect(showNotificationSpy).toHaveBeenCalledWith(
+        'Selected dates are unavailable for this residence.',
+        'error',
+      )
+    })
+  })
+
+  it('prevents checkout creation when the selected range overlaps blocked dates', async () => {
+    detailSearchParams = new URLSearchParams('')
+    mockUseResidenceAvailability.mockReturnValue({
+      blockedDates: ['2026-08-12'],
+      isLoading: false,
+    })
+
+    mockUseBooking.mockReturnValue({
+      selectedRange: {
+        from: '2026-08-10',
+        to: '2026-08-13',
+      },
+      selectedGuestDetails: {
+        adults: 2,
+        children: 0,
+        infants: 0,
+        pets: false,
+      },
+      setSelectedRange: setSelectedRangeSpy,
+      setSelectedGuestDetails: setSelectedGuestDetailsSpy,
+    })
+
+    render(<ResidenceDetailPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mock Book Now' }))
+
+    await waitFor(() => {
+      expect(showNotificationSpy).toHaveBeenCalledWith(
+        'Selected dates are unavailable for this residence.',
+        'error',
+      )
+    })
+
+    expect(mockCreateCheckoutSession).not.toHaveBeenCalled()
   })
 })

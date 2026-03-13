@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { AuthProvider } from '@/context/auth-context'
 import { BookingProvider } from '@/context/booking-context'
 import { UIProvider } from '@/context/ui-context'
 
@@ -9,7 +10,9 @@ interface AppProviderProps {
 export function AppProvider({ children }: AppProviderProps) {
   return (
     <UIProvider>
-      <BookingProvider>{children}</BookingProvider>
+      <AuthProvider>
+        <BookingProvider>{children}</BookingProvider>
+      </AuthProvider>
     </UIProvider>
   )
 }

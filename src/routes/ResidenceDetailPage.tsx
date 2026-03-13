@@ -2,17 +2,22 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { FaBath, FaBed } from 'react-icons/fa'
 import { FiHome, FiUsers } from 'react-icons/fi'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { BookNowAuthModal } from '@/components/auth/BookNowAuthModal'
 import { BookingPanel } from '@/components/residences/BookingPanel'
 import { ResidenceDetailSkeleton } from '@/components/residences/ResidenceDetailSkeleton'
 import { ResidenceDetailSections } from '@/components/residences/ResidenceDetailSections'
 import { ResidencePhotoGallery } from '@/components/residences/ResidencePhotoGallery'
+import { useAuth } from '@/context/auth-context'
 import { useBooking } from '@/context/booking-context'
 import { Container } from '@/design-system/components/Container'
 import { Typography } from '@/design-system/components/Typography'
 import { usePricing } from '@/hooks/usePricing'
+import { useResidenceAvailability } from '@/hooks/useResidenceAvailability'
 import { useResidenceDetail } from '@/hooks/useResidenceDetail'
 import { useUI } from '@/hooks/useUI'
-import { parseGuestDetailsFromSearchParams, writeGuestDetailsToSearchParams } from '@/lib/guestDetails'
+import { getGuestTotal, parseGuestDetailsFromSearchParams, writeGuestDetailsToSearchParams } from '@/lib/guestDetails'
+import { buildAuthHref } from '@/lib/authNavigation'
+import { bookingRequestService, getCheckoutSessionErrorDetail } from '@/services/bookingRequestService'
 import type { ResidenceDetail } from '@/types/content'
 
 function parseIntegerFromDetailValue(value: string | undefined): number | null {
@@ -35,6 +40,29 @@ function countNights(from: string | undefined, to: string | undefined): number {
   return Math.max(0, Math.round((end.getTime() - start.getTime()) / 86_400_000))
 }
 
+function rangeOverlapsBlockedDates(
+  from: string | undefined,
+  to: string | undefined,
+  blockedDateKeys: Set<string>,
+): boolean {
+  if (!from || !to || blockedDateKeys.size === 0 || to <= from) {
+    return false
+  }
+
+  const current = new Date(`${from}T00:00:00`)
+  const end = new Date(`${to}T00:00:00`)
+
+  while (current < end) {
+    const dateKey = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`
+    if (blockedDateKeys.has(dateKey)) {
+      return true
+    }
+    current.setDate(current.getDate() + 1)
+  }
+
+  return false
+}
+
 function getRoomMetric(items: ResidenceDetail['roomDetailsSection']['items'], label: 'Bedrooms' | 'Bathrooms'): number | null {
   const matchedItem = items.find((item) => item.label === label)
   return parseIntegerFromDetailValue(matchedItem?.value)
@@ -50,10 +78,15 @@ export function ResidenceDetailPage() {
 
   const { residence, isLoading, error } = useResidenceDetail(slug)
   const { showNotification } = useUI()
+  const { isAuthenticated } = useAuth()
 
   const { selectedRange, setSelectedRange, selectedGuestDetails, setSelectedGuestDetails } = useBooking()
   const { pricing, isLoading: isPricingLoading } = usePricing(slug, selectedRange.from, selectedRange.to)
+  const { blockedDates } = useResidenceAvailability(residence?.id)
   const [hasHydratedBookingState, setHasHydratedBookingState] = useState<boolean>(false)
+  const [isBookNowAuthModalOpen, setIsBookNowAuthModalOpen] = useState<boolean>(false)
+  const blockedDateSet = new Set(blockedDates)
+  const hasAvailabilityConflict = rangeOverlapsBlockedDates(selectedRange.from, selectedRange.to, blockedDateSet)
 
   // Initialise context from URL params on first mount.
   // This runs inside the loading skeleton so there is no visible flash.
@@ -205,6 +238,85 @@ export function ResidenceDetailPage() {
 
   const roomsCount = getRoomMetric(residence.roomDetailsSection.items, 'Bedrooms') ?? Math.max(1, Math.ceil(residence.beds / 2))
   const bathroomsCount = getRoomMetric(residence.roomDetailsSection.items, 'Bathrooms') ?? Math.max(1, Math.ceil(roomsCount / 2))
+
+  const buildCheckoutUrl = (checkoutSessionToken: string) => {
+    const nextParams = new URLSearchParams()
+    if (selectedRange.from) nextParams.set('checkin', selectedRange.from)
+    if (selectedRange.to) nextParams.set('checkout', selectedRange.to)
+    writeGuestDetailsToSearchParams(nextParams, selectedGuestDetails)
+    nextParams.set('checkoutSession', checkoutSessionToken)
+    const queryString = nextParams.toString()
+    return queryString ? `${pathname}/checkout?${queryString}` : `${pathname}/checkout`
+  }
+
+  const buildGuestDetailsUrl = (checkoutSessionToken: string) => {
+    const nextParams = new URLSearchParams()
+    nextParams.set('checkoutSession', checkoutSessionToken)
+    if (selectedRange.from) nextParams.set('checkin', selectedRange.from)
+    if (selectedRange.to) nextParams.set('checkout', selectedRange.to)
+    writeGuestDetailsToSearchParams(nextParams, selectedGuestDetails)
+    return `${pathname}/guest-details?${nextParams.toString()}`
+  }
+
+  const buildDetailReturnUrl = () => {
+    const nextParams = new URLSearchParams()
+    if (selectedRange.from) nextParams.set('checkin', selectedRange.from)
+    if (selectedRange.to) nextParams.set('checkout', selectedRange.to)
+    writeGuestDetailsToSearchParams(nextParams, selectedGuestDetails)
+    const queryString = nextParams.toString()
+    return queryString ? `${pathname}?${queryString}` : pathname
+  }
+
+  const startCheckout = async () => {
+    const totalGuests = getGuestTotal(selectedGuestDetails)
+
+    const checkoutSession = await bookingRequestService.createCheckoutSession({
+      residenceSlug: slug!,
+      checkIn: selectedRange.from!,
+      checkOut: selectedRange.to!,
+      guests: totalGuests,
+    })
+    const checkoutUrl = buildCheckoutUrl(checkoutSession.token)
+
+    if (isAuthenticated || checkoutSession.accessState === 'authenticated') {
+      router.push(checkoutUrl)
+      return
+    }
+
+    router.push(buildGuestDetailsUrl(checkoutSession.token))
+  }
+
+  const handleBookNow = async () => {
+    if (!slug || !selectedRange.from || !selectedRange.to) {
+      showNotification('Select valid dates before continuing to checkout.', 'info')
+      return
+    }
+
+    const totalGuests = getGuestTotal(selectedGuestDetails)
+    if (totalGuests < 1) {
+      showNotification('Select at least one guest before continuing to checkout.', 'info')
+      return
+    }
+
+    if (hasAvailabilityConflict) {
+      showNotification('Selected dates are unavailable for this residence.', 'error')
+      return
+    }
+
+    if (!isAuthenticated) {
+      setIsBookNowAuthModalOpen(true)
+      return
+    }
+
+    try {
+      await startCheckout()
+    } catch (error) {
+      showNotification(
+        getCheckoutSessionErrorDetail(error) ?? 'We could not start checkout right now. Please try again.',
+        'error',
+      )
+    }
+  }
   const detailForSections: ResidenceDetail = residence
   const residenceFacts = [
     {
@@ -234,7 +346,48 @@ export function ResidenceDetailPage() {
   ]
 
   return (
-    <main className="pb-section pt-48 md:pt-50 lg:pt-52">
+    <main className="relative isolate overflow-hidden pb-section pt-48 md:pt-50 lg:pt-52">
+      <BookNowAuthModal
+        isOpen={isBookNowAuthModalOpen}
+        onClose={() => setIsBookNowAuthModalOpen(false)}
+        onRegister={() => {
+          setIsBookNowAuthModalOpen(false)
+          router.push(buildAuthHref('register', buildDetailReturnUrl()))
+        }}
+        onContinueAsGuest={async () => {
+          setIsBookNowAuthModalOpen(false)
+
+          try {
+            await startCheckout()
+          } catch (error) {
+            showNotification(
+              getCheckoutSessionErrorDetail(error) ?? 'We could not start checkout right now. Please try again.',
+              'error',
+            )
+          }
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${residence.imageUrl})` }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(233,244,249,0.68)_0%,rgba(220,235,244,0.76)_24%,rgba(212,230,240,0.82)_54%,rgba(206,225,237,0.92)_100%)] backdrop-blur-[12px]"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute left-1/2 top-24 -z-10 h-80 w-80 -translate-x-1/2 rounded-full bg-white/32 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute left-0 top-1/3 -z-10 h-96 w-96 rounded-full bg-cyan-100/28 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute bottom-8 right-0 -z-10 h-[26rem] w-[26rem] rounded-full bg-sky-200/28 blur-3xl"
+      />
       <Container>
         <div className="lg:grid lg:grid-cols-[1fr_22rem] lg:items-start lg:gap-8 xl:grid-cols-[1fr_24rem]">
 
@@ -294,10 +447,13 @@ export function ResidenceDetailPage() {
                 promotionalNightlyRateUsd={residence.promotionalNightlyRateUsd}
                 maxGuests={residence.guests}
                 minNights={residence.minNights}
+                blockedDateKeys={blockedDates}
+                hasAvailabilityConflict={hasAvailabilityConflict}
                 selectedRange={selectedRange}
                 selectedGuestDetails={selectedGuestDetails}
                 onGuestDetailsChange={setSelectedGuestDetails}
                 onDateRangeChange={setSelectedRange}
+                onBookNow={handleBookNow}
                 pricing={pricing}
                 isPricingLoading={isPricingLoading}
               />
@@ -306,6 +462,7 @@ export function ResidenceDetailPage() {
 
         </div>
       </Container>
+
     </main>
   )
 }

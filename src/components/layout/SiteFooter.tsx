@@ -1,5 +1,6 @@
 import { FaFacebookF, FaInstagram, FaPinterestP } from 'react-icons/fa6'
 import Link from 'next/link'
+import { LEGAL_PAGE_LINKS } from '@/content/legal'
 import type { FooterSocialLink, FooterContent } from '@/types/content'
 
 interface SiteFooterProps {
@@ -48,7 +49,7 @@ export function SiteFooter({ content }: SiteFooterProps) {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_42%),radial-gradient(circle_at_85%_78%,rgba(255,255,255,0.13),transparent_46%)]" />
 
       <div className="relative z-10 mx-auto w-full max-w-[1200px] px-6 py-14 md:px-8">
-        <div className="grid gap-10 lg:grid-cols-[220px_1.6fr_1fr_1fr] lg:gap-12">
+        <div className="grid gap-10 xl:grid-cols-[220px_1.5fr_0.9fr_0.9fr_1fr] xl:gap-12">
           <div className="flex items-start lg:justify-center">
             <div
               className="flex h-40 w-40 items-center justify-center rounded-full border border-white/35 shadow-[0_22px_45px_-24px_rgba(5,24,56,0.72)]"
@@ -98,6 +99,15 @@ export function SiteFooter({ content }: SiteFooterProps) {
             <nav aria-label="Footer quick links" className="mt-4 flex flex-col gap-2">
               {content.extraLinks.links.map((link) => (
                 <FooterLinkItem key={link.id} href={link.href} label={link.label} />
+              ))}
+            </nav>
+          </div>
+
+          <div>
+            <h3 className="border-b border-white/35 pb-2 font-display text-[2.6rem] leading-none text-white">Legal</h3>
+            <nav aria-label="Footer legal links" className="mt-4 flex flex-col gap-2">
+              {LEGAL_PAGE_LINKS.map((link) => (
+                <FooterLinkItem key={link.href} href={link.href} label={link.label} />
               ))}
             </nav>
           </div>

@@ -66,4 +66,10 @@ describe('BookingPanel', () => {
     const button = screen.getByRole('button', { name: 'Select dates to book' }) as HTMLButtonElement
     expect(button.disabled).toBe(true)
   })
+
+  it('keeps overflow visible so floating guest/date menus are not clipped', () => {
+    const { container } = render(<BookingPanel {...baseProps} />)
+
+    expect(container.firstElementChild).toHaveClass('overflow-visible')
+  })
 })

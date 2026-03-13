@@ -12,6 +12,7 @@ interface DateRangePickerProps {
   value: SearchDateRangeValue
   onChange: (nextRange: SearchDateRangeValue) => void
   className?: string
+  blockedDateKeys?: string[]
 }
 
 function toDateKey(date: Date): string {
@@ -89,7 +90,7 @@ function applySelectionRule(currentRange: SearchDateRangeValue, clickedDate: str
   return { from: clickedDate, to: undefined }
 }
 
-export function DateRangePicker({ label, value, onChange, className }: DateRangePickerProps) {
+export function DateRangePicker({ label, value, onChange, className, blockedDateKeys = [] }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const modalId = useId()
   const [draftValue, setDraftValue] = useState<SearchDateRangeValue | null>(null)
@@ -125,6 +126,7 @@ export function DateRangePicker({ label, value, onChange, className }: DateRange
         <CalendarModal
           id={modalId}
           selectedRange={draftRange}
+          blockedDateKeys={blockedDateKeys}
           onSelectDate={(date) => {
             const nextValue = applySelectionRule(draftValue ?? {}, toDateKey(date))
             setDraftRange(toDayPickerRange(nextValue))

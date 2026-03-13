@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import { Button } from '@/design-system/components/Button'
 import { DateRangePicker } from '@/design-system/components/DateRangePicker'
+import { GlassPanel } from '@/design-system/components/GlassPanel'
 import { GuestDetailsPicker } from '@/design-system/components/GuestDetailsPicker'
 import { getGuestTotal, normalizeGuestDetails } from '@/lib/guestDetails'
 import type { ResidencePricing } from '@/types/content'
@@ -17,10 +18,13 @@ interface BookingPanelProps {
   promotionalNightlyRateUsd?: number
   maxGuests: number
   minNights?: number
+  blockedDateKeys?: string[]
+  hasAvailabilityConflict?: boolean
   selectedRange: { from?: string; to?: string }
   selectedGuestDetails: GuestDetails
   onGuestDetailsChange: (guestDetails: GuestDetails) => void
   onDateRangeChange?: (nextRange: SearchDateRangeValue) => void
+  onBookNow?: () => void
   pricing?: ResidencePricing | null
   isPricingLoading?: boolean
 }
@@ -84,10 +88,13 @@ export function BookingPanel({
   promotionalNightlyRateUsd,
   maxGuests,
   minNights,
+  blockedDateKeys = [],
+  hasAvailabilityConflict = false,
   selectedRange,
   selectedGuestDetails,
   onGuestDetailsChange,
   onDateRangeChange,
+  onBookNow,
   pricing,
   isPricingLoading,
 }: BookingPanelProps) {
@@ -97,7 +104,7 @@ export function BookingPanel({
   const nights = useMemo(() => countNights(selectedRange.from, selectedRange.to), [selectedRange])
   const hasRange = nights > 0
   const meetsMinNights = nights >= minNightsRequired
-  const canBook = hasRange && meetsMinNights
+  const canBook = hasRange && meetsMinNights && !hasAvailabilityConflict
   const pricingSubtotal = pricing?.subtotal ?? null
   const subtotal = pricingSubtotal ?? effectiveNightlyRateUsd * nights
   const serviceFee = Math.round(subtotal * SERVICE_FEE_RATE)
@@ -106,7 +113,13 @@ export function BookingPanel({
   const savingsTotal = (nightlyRateUsd - effectiveNightlyRateUsd) * nights
 
   return (
-    <div className="relative rounded-2xl border border-white/70 bg-mist-gradient p-5 shadow-soft backdrop-blur-xl supports-[backdrop-filter]:bg-white/46 md:p-6">
+    <GlassPanel
+      tone="mist"
+      depth="elevated"
+      radius="glass"
+      padding="lg"
+      className="overflow-visible md:p-6 supports-[backdrop-filter]:bg-white/28"
+    >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_14%_20%,rgba(255,255,255,0.84),transparent_42%),radial-gradient(circle_at_84%_24%,rgba(175,198,242,0.3),transparent_42%)]" />
       <div className="relative space-y-4">
 
@@ -144,12 +157,13 @@ export function BookingPanel({
               label="Dates"
               value={selectedRange}
               onChange={onDateRangeChange}
+              blockedDateKeys={blockedDateKeys}
             />
           </div>
         ) : null}
 
         {hasRange && (
-          <div className="space-y-2 rounded-xl border border-card-border/70 bg-white/50 p-4 text-sm">
+          <div className="space-y-2 rounded-[22px] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.54)_0%,rgba(240,245,249,0.38)_100%)] p-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] backdrop-blur-lg supports-[backdrop-filter]:bg-white/34">
             <div className="flex justify-between text-ink-soft">
               <span>Guests</span>
               <span>{totalGuests}</span>
@@ -201,7 +215,13 @@ export function BookingPanel({
           </p>
         ) : null}
 
-        <Button type="button" className="w-full" variant="primary" size="md" disabled={!canBook}>
+        {hasRange && hasAvailabilityConflict ? (
+          <p className="rounded-lg border border-rose-300/55 bg-rose-100/45 px-3 py-2 text-xs font-medium text-rose-900">
+            Selected dates are unavailable for this residence.
+          </p>
+        ) : null}
+
+        <Button type="button" className="w-full" variant="primary" size="md" disabled={!canBook} onClick={onBookNow}>
           {canBook ? 'Book Now' : 'Select dates to book'}
         </Button>
 
@@ -210,6 +230,6 @@ export function BookingPanel({
         )}
 
       </div>
-    </div>
+    </GlassPanel>
   )
 }

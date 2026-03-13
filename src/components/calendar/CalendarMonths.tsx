@@ -3,11 +3,18 @@ import { useEffect, useMemo, useState } from 'react'
 
 interface CalendarMonthsProps {
   selectedRange: DateRange | undefined
+  blockedDateKeys?: string[]
   onSelectDate: (date: Date) => void
 }
 
-export function CalendarMonths({ selectedRange, onSelectDate }: CalendarMonthsProps) {
+function parseDateKey(value: string): Date {
+  const [yearText, monthText, dayText] = value.split('-')
+  return new Date(Number(yearText), Number(monthText) - 1, Number(dayText))
+}
+
+export function CalendarMonths({ selectedRange, blockedDateKeys = [], onSelectDate }: CalendarMonthsProps) {
   const [hoverDate, setHoverDate] = useState<Date | undefined>(undefined)
+  const disabledDates = useMemo(() => blockedDateKeys.map(parseDateKey), [blockedDateKeys])
   const checkInTime = selectedRange?.from ? new Date(
     selectedRange.from.getFullYear(),
     selectedRange.from.getMonth(),
@@ -53,6 +60,7 @@ export function CalendarMonths({ selectedRange, onSelectDate }: CalendarMonthsPr
         mode="range"
         numberOfMonths={2}
         pagedNavigation
+        disabled={disabledDates}
         selected={selectedRange}
         onDayClick={onSelectDate}
         onDayMouseEnter={(date) => {

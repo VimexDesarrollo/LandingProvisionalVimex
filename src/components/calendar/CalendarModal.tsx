@@ -10,6 +10,7 @@ import type { DateRange } from 'react-day-picker'
 interface CalendarModalProps {
   id: string
   selectedRange: DateRange | undefined
+  blockedDateKeys?: string[]
   onSelectDate: (date: Date) => void
   onClose: () => void
 }
@@ -25,6 +26,7 @@ function focusableElements(container: HTMLElement): HTMLElement[] {
 export function CalendarModal({
   id,
   selectedRange,
+  blockedDateKeys = [],
   onSelectDate,
   onClose,
 }: CalendarModalProps) {
@@ -107,11 +109,12 @@ export function CalendarModal({
         aria-label="Date range modal"
         tabIndex={-1}
         data-testid="calendar-modal-content"
-        className="w-[min(90vw,56rem)] rounded-2xl border border-white/60 bg-[rgb(246_251_255_/_0.96)] p-5 shadow-soft md:p-6"
+        className="calendar-modal-shell w-[min(90vw,56rem)] rounded-2xl border border-white/60 bg-[rgb(246_251_255_/_0.96)] p-5 shadow-soft md:p-6"
       >
         <CalendarModalHeader title="Select dates" onClose={onClose} />
         <CalendarMonths
           selectedRange={selectedRange}
+          blockedDateKeys={blockedDateKeys}
           onSelectDate={onSelectDate}
         />
       </div>

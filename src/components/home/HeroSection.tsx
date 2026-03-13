@@ -55,11 +55,11 @@ export function HeroSection({ content }: HeroSectionProps) {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <ButtonLink
               aria-label={ctaLabel}
-              className="min-w-56 liquid-click--hero"
+              className="min-w-56"
               data-hero-cta
               href={content.primaryCta.href}
               size="lg"
-              variant="hero"
+              variant="brand"
             >
               <span className="inline-flex items-center gap-2">
                 <FiCompass aria-hidden className="h-5 w-5" />

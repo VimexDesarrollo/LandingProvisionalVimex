@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import type { ApiResidenceDetailResponse, ResidenceDetail, ResidenceListing, ResidencePricing } from '@/types/content'
 import { env } from '@/config/env'
 import { adaptResidenceDetail } from '@/services/adapters/residenceDetail.adapter'
@@ -69,6 +70,25 @@ export interface ResidenceFilters {
 
 const useMocks = env.useMocks
 const usePricingMocks = env.usePricingMocks
+
+const residenceAvailabilityResponseSchema = z.object({
+  blocked_dates: z.array(z.string()),
+})
+
+function toDateKey(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+function buildAvailabilityWindow(): { start: string; end: string } {
+  const startDate = new Date()
+  const endDate = new Date(startDate)
+  endDate.setDate(endDate.getDate() + 365)
+
+  return {
+    start: toDateKey(startDate),
+    end: toDateKey(endDate),
+  }
+}
 
 function applyFilters(residences: ResidenceListing[], filters: ResidenceFilters): ResidenceListing[] {
   const allAmenityFilters = Array.from(new Set([...(filters.amenities ?? []), ...(filters.quickFilters ?? [])]))
@@ -181,15 +201,20 @@ export const residenceService = {
     }
   },
 
-  async getBlockedDates(slug: string): Promise<string[]> {
+  async getBlockedDates(residenceId: string, signal?: AbortSignal): Promise<string[]> {
     if (useMocks) {
-      return getBlockedDatesMock(slug)
+      return getBlockedDatesMock(residenceId)
     }
 
     try {
-      return await apiClient.get<string[]>(endpoints.residenceAvailability(slug))
+      const { start, end } = buildAvailabilityWindow()
+      const response = await apiClient.get<z.infer<typeof residenceAvailabilityResponseSchema>>(
+        endpoints.residenceAvailability(residenceId, start, end),
+        { signal },
+      )
+      return residenceAvailabilityResponseSchema.parse(response).blocked_dates
     } catch {
-      return getBlockedDatesMock(slug)
+      return getBlockedDatesMock(residenceId)
     }
   },
 

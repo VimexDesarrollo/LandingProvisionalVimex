@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { gsap } from '@/animations/gsap'
+import { useFloatingPanelDirection } from '@/hooks/useFloatingPanelDirection'
 import { useUI } from '@/hooks/useUI'
 import { cn } from '@/lib/cn'
 import { formatGuestSummary, normalizeGuestDetails } from '@/lib/guestDetails'
@@ -44,6 +45,11 @@ export function GuestDetailsPicker({
   const panelRef = useRef<HTMLDivElement | null>(null)
   const panelId = useId()
   const { prefersReducedMotion } = useUI()
+  const openUpward = useFloatingPanelDirection({
+    isOpen,
+    anchor: wrapperRef.current,
+    estimatedPanelHeight: 360,
+  })
   const normalizedValue = normalizeGuestDetails(value)
   const selectedLabel = formatGuestSummary(normalizedValue, placeholder)
 
@@ -131,7 +137,11 @@ export function GuestDetailsPicker({
           id={panelId}
           role="dialog"
           aria-label={label}
-          className="absolute left-0 top-[calc(100%+0.45rem)] z-[120] w-full min-w-[18rem] rounded-xl border border-white/95 bg-white p-3 shadow-soft"
+          data-direction={openUpward ? 'up' : 'down'}
+          className={cn(
+            'absolute left-0 z-[120] w-full min-w-[18rem] rounded-xl border border-white/95 bg-white p-3 shadow-soft',
+            openUpward ? 'bottom-[calc(100%+0.45rem)]' : 'top-[calc(100%+0.45rem)]',
+          )}
         >
           <div className="space-y-2.5">
             {guestRows.map((row) => (

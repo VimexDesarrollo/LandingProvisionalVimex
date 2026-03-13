@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { gsap } from '@/animations/gsap'
+import { useFloatingPanelDirection } from '@/hooks/useFloatingPanelDirection'
 import { useUI } from '@/hooks/useUI'
 import { cn } from '@/lib/cn'
 
@@ -36,6 +37,11 @@ export function GlassSelect({
   const listboxRef = useRef<HTMLUListElement | null>(null)
   const listboxId = useId()
   const { prefersReducedMotion } = useUI()
+  const openUpward = useFloatingPanelDirection({
+    isOpen,
+    anchor: wrapperRef.current,
+    estimatedPanelHeight: 280,
+  })
 
   const selectedLabel = options.find((option) => option.value === value)?.label ?? placeholder
 
@@ -116,7 +122,11 @@ export function GlassSelect({
           id={listboxId}
           role="listbox"
           aria-label={label}
-          className="absolute left-0 top-[calc(100%+0.45rem)] z-50 max-h-64 w-full origin-top overflow-auto rounded-xl border border-white/95 bg-white p-1 shadow-soft"
+          data-direction={openUpward ? 'up' : 'down'}
+          className={cn(
+            'absolute left-0 z-50 max-h-64 w-full overflow-auto rounded-xl border border-white/95 bg-white p-1 shadow-soft',
+            openUpward ? 'bottom-[calc(100%+0.45rem)] origin-bottom' : 'top-[calc(100%+0.45rem)] origin-top',
+          )}
         >
           {options.map((option) => {
             const isSelected = option.value === value

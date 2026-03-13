@@ -3,6 +3,7 @@
 import { Button } from '@/design-system/components/Button'
 import { Container } from '@/design-system/components/Container'
 import { DateRangePicker } from '@/design-system/components/DateRangePicker'
+import { GlassPanel } from '@/design-system/components/GlassPanel'
 import { GlassSelect } from '@/design-system/components/GlassSelect'
 import { GuestDetailsPicker } from '@/design-system/components/GuestDetailsPicker'
 import { useSearchWidgetNavigation } from '@/hooks/useSearchWidgetNavigation'
@@ -83,7 +84,12 @@ export function SearchWidget({ content }: SearchWidgetProps) {
   return (
     <div className="relative z-30 -mt-14 mb-[-3.5rem] md:-mt-16 md:mb-[-4.5rem]" aria-label="Search stays widget">
       <Container>
-        <section className="rounded-[2rem] border border-white/65 bg-white/70 p-5 shadow-soft backdrop-blur-xl supports-[backdrop-filter]:bg-white/58 md:p-7">
+        <GlassPanel
+          radius="hero"
+          depth="elevated"
+          padding="lg"
+          className="overflow-visible border-white/65 bg-[linear-gradient(180deg,rgba(255,255,255,0.56)_0%,rgba(236,244,249,0.4)_100%)] supports-[backdrop-filter]:bg-white/42 md:p-7"
+        >
           <form className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" role="search" onSubmit={handleSearchSubmit}>
             {primarySelectFields.map((field) => (
               <GlassSelect
@@ -129,8 +135,8 @@ export function SearchWidget({ content }: SearchWidgetProps) {
             <div>
               <Button
                 type="submit"
-                className="h-11 w-full liquid-click--hero gap-2 text-base uppercase tracking-[0.06em]"
-                variant="hero"
+                className="h-11 w-full gap-2 text-base uppercase tracking-[0.06em]"
+                variant="brand"
                 aria-label={content.searchButtonLabel}
               >
                 <SearchIcon />
@@ -145,7 +151,7 @@ export function SearchWidget({ content }: SearchWidgetProps) {
           >
             {content.helperText}
           </a>
-        </section>
+        </GlassPanel>
       </Container>
     </div>
   )
