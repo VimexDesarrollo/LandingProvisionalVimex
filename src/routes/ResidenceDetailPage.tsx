@@ -358,7 +358,17 @@ export function ResidenceDetailPage() {
           setIsBookNowAuthModalOpen(false)
 
           try {
-            await startCheckout()
+            const totalGuests = getGuestTotal(selectedGuestDetails)
+            const checkoutSession = await bookingRequestService.createCheckoutSession({
+              residenceSlug: slug!,
+              checkIn: selectedRange.from!,
+              checkOut: selectedRange.to!,
+              guests: totalGuests,
+            })
+            await bookingRequestService.continueCheckoutAsGuest({
+              checkoutSessionToken: checkoutSession.token,
+            })
+            router.push(buildCheckoutUrl(checkoutSession.token))
           } catch (error) {
             showNotification(
               getCheckoutSessionErrorDetail(error) ?? 'We could not start checkout right now. Please try again.',

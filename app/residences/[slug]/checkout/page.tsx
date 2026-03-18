@@ -1,7 +1,7 @@
 'use client'
 
-import { BookingCheckoutPage } from '@/routes/BookingCheckoutPage'
+import { CheckoutStepper } from '@/checkout/CheckoutStepper'
 
 export default function Page() {
-  return <BookingCheckoutPage />
+  return <CheckoutStepper />
 }

@@ -38,6 +38,15 @@ const config: Config = {
       transitionDuration: {
         400: '400ms',
       },
+      keyframes: {
+        'step-in': {
+          '0%':   { opacity: '0', transform: 'translateY(14px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'step-in': 'step-in 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
+      },
       backgroundImage: {
         'mist-gradient': 'linear-gradient(180deg, rgb(239 246 255 / 0.9) 0%, rgb(224 238 252 / 0.94) 100%)',
       },
