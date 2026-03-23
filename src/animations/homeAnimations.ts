@@ -43,6 +43,49 @@ export function animateHeroReveal(root: HTMLElement, options: AnimationOptions):
   return () => context.revert()
 }
 
+export function animateSectionReveal(root: HTMLElement, options: AnimationOptions): () => void {
+  if (options.reducedMotion) {
+    return () => undefined
+  }
+
+  const context = gsap.context(() => {
+    gsap.fromTo(
+      '[data-section-heading]',
+      { x: -48, opacity: 0 },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.9,
+        ease: 'power3.out',
+        clearProps: 'transform,opacity',
+        scrollTrigger: {
+          trigger: '[data-section-heading]',
+          start: 'top 82%',
+        },
+      },
+    )
+
+    gsap.fromTo(
+      '[data-section-body]',
+      { x: -32, opacity: 0 },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.75,
+        ease: 'power2.out',
+        stagger: 0.12,
+        clearProps: 'transform,opacity',
+        scrollTrigger: {
+          trigger: '[data-section-body]',
+          start: 'top 85%',
+        },
+      },
+    )
+  }, root)
+
+  return () => context.revert()
+}
+
 export function animateStaggerCards(root: HTMLElement, selector: string, options: AnimationOptions): () => void {
   if (options.reducedMotion) {
     return () => undefined

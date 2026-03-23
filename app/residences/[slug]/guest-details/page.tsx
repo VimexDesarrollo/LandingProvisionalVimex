@@ -1,7 +1,5 @@
-'use client'
-
-import { GuestRegistrationPage } from '@/routes/GuestRegistrationPage'
+import { redirect } from 'next/navigation'
 
 export default function Page() {
-  return <GuestRegistrationPage />
+  redirect('/')
 }

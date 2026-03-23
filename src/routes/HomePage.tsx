@@ -1,9 +1,12 @@
 'use client'
 
-import { FeaturedResidencesSection } from '@/components/home/FeaturedResidencesSection'
+import { CommunitiesSection } from '@/components/home/CommunitiesSection'
+import { ContactSection } from '@/components/home/ContactSection'
+import { FeelAtHomeSection } from '@/components/home/FeelAtHomeSection'
 import { HeroSection } from '@/components/home/HeroSection'
-import { SearchWidget } from '@/components/home/SearchWidget'
-import { WhySection } from '@/components/home/WhySection'
+import { RivieraMayaSection } from '@/components/home/RivieraMayaSection'
+import { ServicesSection } from '@/components/home/ServicesSection'
+import { WhyChooseUsSection } from '@/components/home/WhyChooseUsSection'
 import type { HomePageContent } from '@/types/content'
 
 interface HomePageProps {
@@ -14,18 +17,12 @@ export function HomePage({ content }: HomePageProps) {
   return (
     <main>
       <HeroSection content={content.hero} />
-      <SearchWidget content={content.searchWidget} />
-      <WhySection
-        title={content.whyVimexTitle}
-        subtitle={content.whyVimexSubtitle}
-        features={content.whyFeatures}
-        className="pt-[calc(var(--space-section)+5rem)]"
-      />
-      <FeaturedResidencesSection
-        title={content.featuredResidencesTitle}
-        cta={content.featuredResidencesCta}
-        residences={content.featuredResidences}
-      />
+      <FeelAtHomeSection />
+      <ServicesSection />
+      <RivieraMayaSection />
+      <CommunitiesSection />
+      <WhyChooseUsSection />
+      <ContactSection content={content.footer.contact} />
     </main>
   )
 }

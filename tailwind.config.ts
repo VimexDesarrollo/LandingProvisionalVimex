@@ -13,6 +13,7 @@ const config: Config = {
         'accent-strong': 'rgb(var(--color-accent-strong) / <alpha-value>)',
         'card-border': 'rgb(var(--color-card-border) / <alpha-value>)',
         success: 'rgb(var(--color-success) / <alpha-value>)',
+        'brand-teal': '#66C2D0',
       },
       fontFamily: {
         display: ['"Eczar"', 'serif'],

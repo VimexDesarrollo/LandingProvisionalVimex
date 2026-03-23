@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { FiCompass, FiKey } from 'react-icons/fi'
+import { FiCompass } from 'react-icons/fi'
 import { ButtonLink } from '@/design-system/components/ButtonLink'
 import { Container } from '@/design-system/components/Container'
 import { Section } from '@/design-system/components/Section'
@@ -15,17 +15,26 @@ interface HeroSectionProps {
 export function HeroSection({ content }: HeroSectionProps) {
   const { prefersReducedMotion } = useUI()
   const rootRef = useRef<HTMLElement | null>(null)
-  const ctaLabel = content.primaryCta.label.trim() || 'Explore Residences'
-  const ownerLabel = content.secondaryCta.label.trim() || 'Property Owners'
+  const imgRef = useRef<HTMLImageElement | null>(null)
+  const ctaLabel = content.primaryCta.label.trim() || 'Contact Us'
 
   useEffect(() => {
     const node = rootRef.current
+    if (!node) return
+    return animateHeroReveal(node, { reducedMotion: prefersReducedMotion })
+  }, [prefersReducedMotion])
 
-    if (!node) {
-      return
+  useEffect(() => {
+    if (prefersReducedMotion) return
+
+    const handleScroll = () => {
+      if (imgRef.current) {
+        imgRef.current.style.transform = `translateY(${window.scrollY * 0.35}px)`
+      }
     }
 
-    return animateHeroReveal(node, { reducedMotion: prefersReducedMotion })
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [prefersReducedMotion])
 
   return (
@@ -35,19 +44,22 @@ export function HeroSection({ content }: HeroSectionProps) {
       aria-label="Hero section"
     >
       <img
+        ref={imgRef}
         src={content.backgroundImage}
         alt="Oceanfront luxury terrace in Playa del Carmen"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-[120%] w-full object-cover will-change-transform"
+        style={{ top: '-10%' }}
         fetchPriority="high"
       />
       <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(8,18,44,0.58),rgba(14,28,66,0.22))]" data-hero-overlay />
       <Container className="relative z-10 flex min-h-[68vh] items-center">
         <div className="max-w-[720px] space-y-6 md:space-y-8">
-          <Typography as="p" variant="caption" data-hero-eyebrow>
+          <Typography as="p" variant="caption" data-hero-eyebrow className="text-brand-teal">
             {content.eyebrow}
           </Typography>
           <Typography as="h1" variant="display" data-hero-title>
-            {content.title}
+            Welcome Home to{' '}
+            <span className="text-brand-teal">Playa del Carmen</span>
           </Typography>
           <Typography className="max-w-[56ch] text-white/90" data-hero-subtitle>
             {content.subtitle}
@@ -64,18 +76,6 @@ export function HeroSection({ content }: HeroSectionProps) {
               <span className="inline-flex items-center gap-2">
                 <FiCompass aria-hidden className="h-5 w-5" />
                 {ctaLabel}
-              </span>
-            </ButtonLink>
-            <ButtonLink
-              aria-label={ownerLabel}
-              className="min-w-52 bg-white/16 text-white ring-1 ring-white/30 hover:bg-white/26"
-              href={content.secondaryCta.href}
-              size="lg"
-              variant="ghost"
-            >
-              <span className="inline-flex items-center gap-2">
-                <FiKey aria-hidden className="h-5 w-5" />
-                {ownerLabel}
               </span>
             </ButtonLink>
           </div>

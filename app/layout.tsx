@@ -9,6 +9,7 @@ import { Providers } from './providers'
 export const metadata: Metadata = {
   title: 'Vimex Vacation Rentals',
   description: 'Luxury vacation rentals and concierge services in Playa del Carmen.',
+  icons: { icon: '/favicon.ico' },
 }
 
 interface RootLayoutProps {

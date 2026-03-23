@@ -66,11 +66,29 @@ export function SiteFooter({ content }: SiteFooterProps) {
                 <p key={line}>{line}</p>
               ))}
             </div>
-            <div className="mt-6 space-y-2 text-[1.5rem] leading-snug text-white/96">
-              {content.contact.phones.map((phone) => (
-                <p key={phone}>{phone}</p>
-              ))}
-              <a href={`mailto:${content.contact.email}`} className="inline-flex transition-colors duration-300 hover:text-white">
+            <div className="mt-6 flex flex-col gap-2">
+              {content.contact.phones.map((phone) => {
+                const digits = phone.replace(/[\s()\-]/g, '')
+                const flag = digits.startsWith('+1') ? '🇺🇸' : '🇲🇽'
+                return (
+                  <a
+                    key={phone}
+                    href={`tel:${digits}`}
+                    className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/30 bg-white/10 px-4 text-base font-semibold text-white transition-colors hover:bg-white/20"
+                  >
+                    <span className="text-lg" aria-hidden="true">{flag}</span>
+                    {phone}
+                  </a>
+                )
+              })}
+              <a
+                href={`mailto:${content.contact.email}`}
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/30 bg-white/10 px-4 text-base font-semibold text-white transition-colors hover:bg-white/20"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 shrink-0" aria-hidden="true">
+                  <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+                  <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+                </svg>
                 {content.contact.email}
               </a>
             </div>

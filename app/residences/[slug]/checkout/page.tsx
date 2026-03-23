@@ -1,7 +1,5 @@
-'use client'
-
-import { CheckoutStepper } from '@/checkout/CheckoutStepper'
+import { redirect } from 'next/navigation'
 
 export default function Page() {
-  return <CheckoutStepper />
+  redirect('/')
 }

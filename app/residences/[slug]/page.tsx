@@ -1,7 +1,5 @@
-'use client'
-
-import { ResidenceDetailPage } from '@/routes/ResidenceDetailPage'
+import { redirect } from 'next/navigation'
 
 export default function Page() {
-  return <ResidenceDetailPage />
+  redirect('/')
 }

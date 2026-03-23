@@ -54,7 +54,7 @@ export function FeaturedResidencesSection({ title, cta, residences }: FeaturedRe
             <span aria-hidden="true">→</span>
           </a>
         </div>
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {residences.map((residence) => (
             <ResidenceCard key={residence.id} residence={residence} />
           ))}

@@ -1,7 +1,5 @@
-'use client'
-
-import { BookingRequestSuccessPage } from '@/routes/BookingRequestSuccessPage'
+import { redirect } from 'next/navigation'
 
 export default function Page() {
-  return <BookingRequestSuccessPage />
+  redirect('/')
 }
