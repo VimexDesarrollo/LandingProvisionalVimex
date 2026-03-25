@@ -93,17 +93,73 @@ export function animateStaggerCards(root: HTMLElement, selector: string, options
 
   const context = gsap.context(() => {
     gsap.from(selector, {
-      y: 24,
+      y: 48,
       opacity: 0,
-      stagger: 0.15,
-      duration: 0.75,
-      ease: 'power2.out',
+      scale: 0.95,
+      stagger: 0.11,
+      duration: 0.88,
+      ease: 'power3.out',
+      clearProps: 'transform,opacity',
       scrollTrigger: {
         trigger: root,
-        start: 'top 75%',
+        start: 'top 72%',
       },
     })
   }, root)
+
+  return () => context.revert()
+}
+
+export function animateImageReveal(wrapper: HTMLElement, img: HTMLElement, options: AnimationOptions): () => void {
+  if (options.reducedMotion) {
+    return () => undefined
+  }
+
+  const context = gsap.context(() => {
+    gsap.fromTo(
+      img,
+      { scale: 1.14, opacity: 0 },
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 1.35,
+        ease: 'power2.out',
+        clearProps: 'transform,opacity',
+        scrollTrigger: {
+          trigger: wrapper,
+          start: 'top 82%',
+          toggleActions: 'play none none none',
+        },
+      },
+    )
+  })
+
+  return () => context.revert()
+}
+
+export function animateGlassCard(el: HTMLElement, options: AnimationOptions): () => void {
+  if (options.reducedMotion) {
+    return () => undefined
+  }
+
+  const context = gsap.context(() => {
+    gsap.fromTo(
+      el,
+      { scale: 0.88, opacity: 0, y: 48 },
+      {
+        scale: 1,
+        opacity: 1,
+        y: 0,
+        duration: 1.05,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      },
+    )
+  })
 
   return () => context.revert()
 }

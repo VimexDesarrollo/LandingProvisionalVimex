@@ -35,7 +35,7 @@ export const CHECKOUT_CONSENT_LINKS = {
   terms: '/terms',
 } as const
 
-const LAST_UPDATED = 'March 12, 2026'
+const LAST_UPDATED = 'June 1, 2023'
 
 function withRelatedLinks(currentHref: string): LegalLink[] {
   return LEGAL_PAGE_LINKS.filter((link) => link.href !== currentHref)
@@ -44,53 +44,96 @@ function withRelatedLinks(currentHref: string): LegalLink[] {
 export const legalPages: Record<string, LegalPageContent> = {
   privacyPolicy: {
     href: '/privacy-policy',
-    title: 'Privacy Policy',
-    description: 'Learn how Vimex collects, uses, stores, and protects personal information across the platform.',
+    title: 'Privacy Policy — Aviso de Privacidad',
+    description:
+      'Oppim Group, S.A. de C.V. (Vimex Vacation Rentals) is responsible for the use and protection of your personal data under the Mexican Federal Law on Protection of Personal Data Held by Private Parties (LFPDPPP).',
     updatedAt: LAST_UPDATED,
     intro: [
-      'This Privacy Policy explains how Vimex Vacation Rentals collects and processes personal information when guests browse the platform, submit booking requests, or contact our team.',
-      'It is designed to support transparent guest communications today and future checkout consent flows as the booking experience expands.',
+      'Oppim Group, S.A. de C.V., operating as Vimex Vacation Rentals, is the entity responsible for the use and protection of your personal data. This Privacy Policy is issued in compliance with the Mexican Federal Law on Protection of Personal Data Held by Private Parties (Ley Federal de Protección de Datos Personales en Posesión de los Particulares — LFPDPPP).',
+      'By contacting us, browsing this website, or requesting our services, you acknowledge that you have read and understood this notice.',
     ],
     sections: [
       {
-        heading: 'Information We Collect',
+        heading: 'Purposes for Which We Use Your Personal Data',
         paragraphs: [
-          'We may collect contact details, reservation preferences, stay dates, guest counts, payment-related references, and communications you send through the platform.',
-          'We may also collect technical information such as device type, browser details, IP address, and cookie identifiers to operate the website securely.',
+          'The personal data we collect from you will be used for the following purposes:',
+        ],
+        bullets: [
+          'To provide the services you have requested and inform you of any changes to them.',
+          'To fulfill the obligations we have acquired with you or those established by applicable law.',
+          'To create, update, and maintain a client file.',
+          'To issue invoices and collect payments for services.',
+          'To send you information about our offers and promotions.',
         ],
       },
       {
-        heading: 'How We Use Your Information',
+        heading: 'Personal Data We Collect',
         paragraphs: [
-          'We use personal information to respond to inquiries, process reservation requests, coordinate guest stays, improve platform performance, and send service-related communications.',
-          'Information may also be used for fraud prevention, compliance, analytics, and internal business operations tied to the delivery of our services.',
+          'To carry out the purposes described in this notice, we may collect the following categories of personal data:',
+        ],
+        bullets: [
+          'Identification data: full name, marital status, RFC, CURP, place and date of birth, nationality, age, and photograph.',
+          'Contact data: home address, email address, landline, and mobile phone number.',
+          'Employment data: position and work address.',
+          'Financial or patrimonial data: location and characteristics of real and personal property, credit card number, and banking details.',
+        ],
+      },
+      {
+        heading: 'Sensitive Personal Data',
+        paragraphs: [
+          'We do not require sensitive personal data as defined under the LFPDPPP, including racial or ethnic origin, current or future health status, genetic information, religious, philosophical or moral beliefs, union membership, political opinions, or sexual preference.',
+        ],
+      },
+      {
+        heading: 'How We Obtain Your Personal Data',
+        paragraphs: [
+          'We may collect your personal data through the following means:',
+        ],
+        bullets: [
+          'By telephone or email.',
+          'When you provide the information to us directly.',
+          'From publicly accessible sources permitted by law, such as telephone directories, professional directories, or websites.',
         ],
       },
       {
         heading: 'Data Sharing',
         paragraphs: [
-          'We may share information with property owners, service providers, payment processors, and professional advisors when needed to operate the platform or fulfill reservations.',
-          'We do not sell personal information, and we limit disclosures to situations that support legitimate operational, contractual, or legal needs.',
+          'Your personal data will not be disclosed, shared, or transferred to third parties under any circumstances, except where required by law or ordered by a competent authority.',
         ],
       },
       {
-        heading: 'Data Security',
+        heading: 'ARCO Rights — Access, Rectification, Cancellation & Opposition',
         paragraphs: [
-          'We apply reasonable administrative, technical, and organizational safeguards to protect personal information from unauthorized access, disclosure, or misuse.',
-          'No online service can guarantee absolute security, so guests should also use strong passwords and contact us promptly about suspected account misuse.',
+          'You have the right to know what personal data we hold about you, how we use it, and the conditions of that use (Access). You also have the right to request correction of inaccurate or incomplete data (Rectification); to request deletion from our records when you believe the data is not being used in accordance with applicable law (Cancellation); and to object to the use of your data for specific purposes (Opposition). These are known as ARCO rights.',
+          'To exercise any ARCO right, please send your request by email to gerenciavimex@gmail.com.',
         ],
       },
       {
-        heading: 'User Rights',
+        heading: 'Privacy Department Contact',
         paragraphs: [
-          'Depending on applicable law, users may have rights to access, correct, delete, or restrict certain personal information, or to object to specific processing activities.',
-          'Requests will be reviewed in light of our operational obligations, legal requirements, and the need to preserve transaction and security records.',
+          'Mexico: +52 (984) 803 2231 | US & Canada: +1 (510) 990 3091',
+          'Address: Calle 12 entre 15 y 20 Avenida, Col. Centro, Playa del Carmen, Q. Roo, 77710, México',
+          'Email: gerenciavimex@gmail.com',
         ],
       },
       {
-        heading: 'Contact Information',
+        heading: 'Revoking Your Consent',
         paragraphs: [
-          'Privacy-related questions or requests can be sent to our team by using the contact details listed in the site footer or through our contact page.',
+          'You may revoke the consent you have granted for the processing of your personal data at any time. Please note that in some cases we may be legally required to continue processing your data, or that revocation may prevent us from continuing to provide the service you requested.',
+          'To revoke consent, please send a request to gerenciavimex@gmail.com.',
+        ],
+      },
+      {
+        heading: 'Tracking Technologies',
+        paragraphs: [
+          'Our website (www.vimexmx.com) uses cookies, web beacons, and similar technologies that allow us to monitor your behavior as an Internet user, provide a better service and user experience, and offer new products and services based on your preferences.',
+          'The personal data obtained through these tracking technologies includes: browsing schedule, time spent on our website, sections visited, and pages accessed before arriving at our site.',
+        ],
+      },
+      {
+        heading: 'Changes to This Privacy Policy',
+        paragraphs: [
+          'This Privacy Policy may be modified, changed, or updated due to new legal requirements, changes in our products or services, privacy practices, business model adjustments, or other causes. Any changes will be published on our website at www.vimexmx.com.',
         ],
       },
     ],

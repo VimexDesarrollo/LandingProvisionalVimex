@@ -1,0 +1,16 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_USE_MOCKS: "true"
+        NEXT_PUBLIC_API_URL: "https://api.vimexmx.com"
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ""
+    image: vimex-landing:latest
+    container_name: vimex-landing
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped

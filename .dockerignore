@@ -1,0 +1,16 @@
+.git
+.github
+.next
+.next-dev
+node_modules
+*.md
+*.log
+.env*
+!.env.example
+.DS_Store
+coverage
+__tests__
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx

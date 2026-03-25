@@ -157,8 +157,8 @@ export function ContactPage() {
                 </div>
                 <div>
                   <Typography className="font-semibold">Email</Typography>
-                  <a className="text-accent underline decoration-2 decoration-accent/60 transition-colors hover:text-accent-strong" href="mailto:info@vimexvacationrentals.com">
-                    info@vimexvacationrentals.com
+                  <a className="text-accent underline decoration-2 decoration-accent/60 transition-colors hover:text-accent-strong" href="mailto:info@vimexmx.com">
+                    info@vimexmx.com
                   </a>
                 </div>
                 <div>

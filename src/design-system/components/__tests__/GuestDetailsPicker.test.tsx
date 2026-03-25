@@ -10,7 +10,7 @@ vi.mock('@/hooks/useUI', () => ({
 
 vi.mock('@/animations/gsap', () => ({
   gsap: {
-    context: (_fn: () => void) => ({ revert: vi.fn() }),
+    context: (_fn: () => void) => ({ revert: vi.fn() }), // eslint-disable-line @typescript-eslint/no-unused-vars
     fromTo: vi.fn(),
   },
 }))

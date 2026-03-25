@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { Container } from '@/design-system/components/Container'
 import { cn } from '@/lib/cn'
 import { runLiquidClickFromKeyboard, runLiquidClickFromMouse } from '@/lib/liquidClick'
+import { useLocale } from '@/i18n/LocaleContext'
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import type { HeaderContent } from '@/types/content'
 
 interface SiteHeaderProps {
@@ -17,6 +19,7 @@ const isExternal = (href: string) => /^https?:\/\//.test(href)
 export function SiteHeader({ content }: SiteHeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { t } = useLocale()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,26 +64,31 @@ export function SiteHeader({ content }: SiteHeaderProps) {
           <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
             {content.menuItems.map((item) => {
               const isContact = item.id === 'contact'
+              const label = item.id === 'about' ? t.nav.about : item.id === 'property-management' ? t.nav.propertyManagement : item.id === 'contact' ? t.nav.contactUs : item.label
               const sharedProps = {
                 className: navLinkClass(isContact),
-                'aria-label': item.label,
+                'aria-label': label,
                 onMouseDown: runLiquidClickFromMouse,
                 onKeyDown: runLiquidClickFromKeyboard,
               }
               return isExternal(item.href) ? (
                 <a key={item.id} href={item.href} target="_blank" rel="noreferrer" {...sharedProps}>
-                  <span className="relative z-[1]">{item.label}</span>
+                  <span className="relative z-[1]">{label}</span>
                 </a>
               ) : (
                 <Link key={item.id} href={item.href} {...sharedProps}>
-                  <span className="relative z-[1]">{item.label}</span>
+                  <span className="relative z-[1]">{label}</span>
                 </Link>
               )
             })}
+            <LanguageSwitcher scrolled={isScrolled} />
           </nav>
 
-          {/* Mobile hamburger */}
-          <button
+          {/* Mobile language switcher */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <LanguageSwitcher scrolled={isScrolled} />
+            {/* Mobile hamburger */}
+            <button
             type="button"
             className="liquid-click liquid-click--nav inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/60 bg-white/35 text-ink shadow-soft transition-colors duration-300 hover:bg-white/50 lg:hidden"
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
@@ -94,6 +102,7 @@ export function SiteHeader({ content }: SiteHeaderProps) {
               <span className={cn('absolute block h-[2px] w-6 rounded-full bg-ink transition-all duration-200', isMenuOpen ? '-rotate-45' : 'translate-y-1.5')} />
             </span>
           </button>
+          </div>
         </div>
 
         {/* Mobile menu */}

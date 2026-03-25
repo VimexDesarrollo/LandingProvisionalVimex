@@ -2,11 +2,16 @@
 
 import type { ReactNode } from 'react'
 import { AppProvider } from '@/context/app-provider'
+import { LocaleProvider } from '@/i18n/LocaleContext'
 
 interface ProvidersProps {
   children: ReactNode
 }
 
 export function Providers({ children }: ProvidersProps) {
-  return <AppProvider>{children}</AppProvider>
+  return (
+    <LocaleProvider>
+      <AppProvider>{children}</AppProvider>
+    </LocaleProvider>
+  )
 }

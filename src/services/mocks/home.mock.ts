@@ -3,7 +3,6 @@ import type { ApiHomeResponse } from '@/types/content'
 export const homeMock: ApiHomeResponse = {
   header: {
     menu_items: [
-      { id: 'home', label: 'Home', href: '/' },
       { id: 'about', label: 'About Us', href: '/#feel-at-home' },
       { id: 'property-management', label: 'Property Management', href: '/#why-vimex-heading' },
       { id: 'contact', label: 'Contact Us', href: '/#contact' },
@@ -11,7 +10,7 @@ export const homeMock: ApiHomeResponse = {
   },
   footer: {
     background_image:
-      'https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=2400&q=80',
+      'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=2400&q=80',
     logo_badge_background: '#44B8CE',
     contact: {
       title: 'Contact Us',

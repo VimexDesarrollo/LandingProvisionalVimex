@@ -42,4 +42,5 @@ export const endpoints = {
   authCheckoutSessionGuest: `${apiBaseUrl}/auth/checkout-sessions/guest/`,
   authCheckoutSessionOtpRequest: `${apiBaseUrl}/auth/checkout-sessions/otp/request/`,
   authCheckoutSessionOtpVerify: `${apiBaseUrl}/auth/checkout-sessions/otp/verify/`,
+  provisionalContact: `${apiBaseUrl}/contact/provisional/`,
 } as const

@@ -44,7 +44,7 @@ function FooterLinkItem({ href, label }: { href: string; label: string }) {
 export function SiteFooter({ content }: SiteFooterProps) {
   return (
     <footer id="site-footer" className="relative mt-12 overflow-hidden text-white">
-      <img src={content.backgroundImage} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
+      <img src="https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=2400&q=80" alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(34,119,165,0.88),rgba(32,101,145,0.85),rgba(38,134,179,0.87))]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_42%),radial-gradient(circle_at_85%_78%,rgba(255,255,255,0.13),transparent_46%)]" />
 
