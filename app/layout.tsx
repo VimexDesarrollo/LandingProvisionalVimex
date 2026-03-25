@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import Script from 'next/script'
 import '@/styles/base.css'
 import '@/styles/effects.css'
 import { AppShell } from '@/components/layout/AppShell'
 import { SchemaOrg } from '@/components/layout/SchemaOrg'
 import { getHomeContent } from '@/services/server/contentService'
 import { Providers } from './providers'
+
+const GTM_ID = 'GTM-MXNRRR3Z'
 
 const SITE_URL = 'https://vimexmx.com'
 const OG_IMAGE = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80'
@@ -81,6 +84,19 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
       </head>
       <body suppressHydrationWarning>
+        <Script
+          id="gtm"
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`}
+        />
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
         <SchemaOrg />
         <Providers>
           <AppShell content={homeContent}>{children}</AppShell>
