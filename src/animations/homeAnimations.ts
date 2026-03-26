@@ -204,6 +204,66 @@ export function animateWhyCardsOnScroll(root: HTMLElement, selector: string, opt
   return () => context.revert()
 }
 
+export function animateSlideFromLeft(element: HTMLElement, options: AnimationOptions): () => void {
+  if (options.reducedMotion) return () => undefined
+
+  const context = gsap.context(() => {
+    gsap.fromTo(
+      element,
+      { x: -80, opacity: 0, clipPath: 'inset(0 100% 0 0)' },
+      {
+        x: 0,
+        opacity: 1,
+        clipPath: 'inset(0 0% 0 0)',
+        duration: 1.1,
+        ease: 'power3.out',
+        clearProps: 'transform,opacity,clip-path',
+        scrollTrigger: {
+          trigger: element,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      },
+    )
+  })
+
+  return () => context.revert()
+}
+
+export function animateWordColorScroll(element: HTMLElement, options: AnimationOptions): () => void {
+  if (options.reducedMotion) return () => undefined
+
+  const originalHTML = element.innerHTML
+  const text = element.textContent ?? ''
+
+  // Wrap each word in a span starting at brand-teal color
+  element.innerHTML = text
+    .split(' ')
+    .map((word) => `<span style="color:#2f6a6e">${word}</span>`)
+    .join(' ')
+
+  const spans = Array.from(element.querySelectorAll<HTMLElement>('span'))
+
+  const context = gsap.context(() => {
+    gsap.to(spans, {
+      color: '#0f172a',
+      stagger: { each: 0.04, from: 'start' },
+      ease: 'none',
+      scrollTrigger: {
+        trigger: element,
+        start: 'top 72%',
+        end: 'bottom 38%',
+        scrub: 1.2,
+      },
+    })
+  })
+
+  return () => {
+    context.revert()
+    element.innerHTML = originalHTML
+  }
+}
+
 export function animateStackedOverlay(sectionA: HTMLElement, sectionB: HTMLElement, options: AnimationOptions): () => void {
   if (options.reducedMotion) return () => undefined
 

@@ -16,7 +16,7 @@ const config: Config = {
         'brand-teal': '#66C2D0',
       },
       fontFamily: {
-        display: ['"Eczar"', 'serif'],
+        display: ['"Bricolage Grotesque"', 'sans-serif'],
         body: ['"Manrope"', 'sans-serif'],
       },
       borderRadius: {

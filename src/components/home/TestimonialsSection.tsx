@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { Container } from '@/design-system/components/Container'
 import { Section } from '@/design-system/components/Section'
 import { Typography } from '@/design-system/components/Typography'
@@ -14,6 +15,7 @@ const TESTIMONIALS = [
     name: 'Sarah M.',
     location: 'California, USA',
     stay: 'Villa Brianna',
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 't2',
@@ -22,6 +24,7 @@ const TESTIMONIALS = [
     name: 'Carlos & Ana R.',
     location: 'Mexico City, MX',
     stay: 'Aldea Thai Studio',
+    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 't3',
@@ -30,6 +33,7 @@ const TESTIMONIALS = [
     name: 'David L.',
     location: 'Toronto, Canada',
     stay: 'Property Owner',
+    image: 'https://images.unsplash.com/photo-1560185008-b033106af5c3?auto=format&fit=crop&w=800&q=80',
   },
 ]
 
@@ -66,31 +70,65 @@ export function TestimonialsSection() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3" role="list">
-          {TESTIMONIALS.map((t) => (
+          {TESTIMONIALS.map((testimonial) => (
             <figure
-              key={t.id}
+              key={testimonial.id}
               role="listitem"
               data-section-body
-              className="flex flex-col gap-5 rounded-2xl border border-[rgb(188,222,221)] bg-white/88 p-8 shadow-[0_18px_40px_-28px_rgba(47,106,110,0.4)] backdrop-blur-sm transition-transform transition-shadow duration-300 hover:-translate-y-1 hover:shadow-[0_24px_52px_-28px_rgba(47,106,110,0.42)]"
+              className="group relative overflow-hidden rounded-2xl shadow-[0_18px_40px_-28px_rgba(47,106,110,0.5)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_28px_56px_-24px_rgba(47,106,110,0.5)]"
+              style={{ minHeight: '380px' }}
             >
-              <div className="flex items-start justify-between">
-                <Stars />
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" className="h-8 w-8 text-brand-teal/20" aria-hidden="true">
-                  <path d="M10 8C6.686 8 4 10.686 4 14v10h10V14H7.5c0-1.38 1.12-2.5 2.5-2.5V8zm18 0c-3.314 0-6 2.686-6 6v10h10V14h-6.5c0-1.38 1.12-2.5 2.5-2.5V8z" />
-                </svg>
+              {/* Full background image */}
+              <Image
+                src={testimonial.image}
+                alt={testimonial.stay}
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+
+              {/* Dark overlay — always visible, fades on hover */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20 transition-opacity duration-500 group-hover:opacity-0"
+              />
+
+              {/* Glassmorphism overlay — hidden by default, appears on hover */}
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-white/70 opacity-0 backdrop-blur-md transition-opacity duration-500 group-hover:opacity-100"
+              />
+
+              {/* Content */}
+              <div className="relative z-10 flex h-full flex-col justify-end p-7" style={{ minHeight: '380px' }}>
+                <div className="flex items-start justify-between">
+                  <Stars />
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor"
+                    className="h-7 w-7 text-white/30 transition-colors duration-500 group-hover:text-brand-teal/30"
+                    aria-hidden="true"
+                  >
+                    <path d="M10 8C6.686 8 4 10.686 4 14v10h10V14H7.5c0-1.38 1.12-2.5 2.5-2.5V8zm18 0c-3.314 0-6 2.686-6 6v10h10V14h-6.5c0-1.38 1.12-2.5 2.5-2.5V8z" />
+                  </svg>
+                </div>
+
+                <blockquote className="mt-4">
+                  <Typography className="text-sm leading-relaxed text-white transition-colors duration-500 group-hover:text-slate-800 md:text-base">
+                    "{testimonial.quote}"
+                  </Typography>
+                </blockquote>
+
+                <figcaption className="mt-5 border-t border-white/25 pt-4 transition-colors duration-500 group-hover:border-slate-200">
+                  <p className="text-sm font-semibold text-white transition-colors duration-500 group-hover:text-slate-900">
+                    {testimonial.name}
+                  </p>
+                  <p className="text-xs text-white/70 transition-colors duration-500 group-hover:text-slate-500">
+                    {testimonial.location}
+                  </p>
+                  <p className="mt-1 text-xs font-medium text-brand-teal/80 transition-colors duration-500 group-hover:text-brand-teal">
+                    {testimonial.stay}
+                  </p>
+                </figcaption>
               </div>
-
-              <blockquote>
-                <Typography className="text-sm leading-relaxed text-slate-600 md:text-base">
-                  "{t.quote}"
-                </Typography>
-              </blockquote>
-
-              <figcaption className="mt-auto border-t border-[rgb(214,236,235)] pt-5">
-                <p className="text-sm font-semibold text-slate-800">{t.name}</p>
-                <p className="text-xs text-slate-500">{t.location}</p>
-                <p className="mt-1 text-xs font-medium text-brand-teal">{t.stay}</p>
-              </figcaption>
             </figure>
           ))}
         </div>
