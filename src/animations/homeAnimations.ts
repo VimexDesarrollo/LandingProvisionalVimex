@@ -204,6 +204,44 @@ export function animateWhyCardsOnScroll(root: HTMLElement, selector: string, opt
   return () => context.revert()
 }
 
+export function animateStackedOverlay(sectionA: HTMLElement, sectionB: HTMLElement, options: AnimationOptions): () => void {
+  if (options.reducedMotion) return () => undefined
+
+  const context = gsap.context(() => {
+    // Scale down + blur section A as section B slides over it
+    gsap.to(sectionA, {
+      scale: 0.95,
+      opacity: 0.55,
+      filter: 'blur(4px)',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: sectionB,
+        start: 'top 85%',
+        end: 'top 15%',
+        scrub: 1.2,
+      },
+    })
+
+    // Section B rises with a subtle push-up feel
+    gsap.fromTo(
+      sectionB,
+      { y: 72 },
+      {
+        y: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionB,
+          start: 'top bottom',
+          end: 'top 55%',
+          scrub: 1.5,
+        },
+      },
+    )
+  })
+
+  return () => context.revert()
+}
+
 export function animateHoverLift(root: HTMLElement, selector: string, options: AnimationOptions): () => void {
   if (options.reducedMotion) {
     return () => undefined

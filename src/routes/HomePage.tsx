@@ -7,6 +7,7 @@ import { FeelAtHomeSection } from '@/components/home/FeelAtHomeSection'
 import { HeroSection } from '@/components/home/HeroSection'
 import { RivieraMayaSection } from '@/components/home/RivieraMayaSection'
 import { ServicesSection } from '@/components/home/ServicesSection'
+import { StackedOverlay } from '@/components/home/StackedOverlay'
 import { StatsSection } from '@/components/home/StatsSection'
 import { TestimonialsSection } from '@/components/home/TestimonialsSection'
 import { WhyChooseUsSection } from '@/components/home/WhyChooseUsSection'
@@ -24,8 +25,10 @@ export function HomePage({ content }: HomePageProps) {
       <ServicesSection />
       <StatsSection />
       <RivieraMayaSection />
-      <CommunitiesSection />
-      <WhyChooseUsSection />
+      <StackedOverlay
+        baseSection={<CommunitiesSection />}
+        overlaySection={<WhyChooseUsSection />}
+      />
       <TestimonialsSection />
       <FaqSection />
       <ContactSection content={content.footer.contact} />

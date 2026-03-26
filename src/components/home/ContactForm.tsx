@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { z } from 'zod'
-import { buildContactMessage, buildWhatsAppUrl } from '@/config/whatsapp'
+import { buildContactMessage, buildOwnerMessage, buildWhatsAppUrl } from '@/config/whatsapp'
 import { useLocale } from '@/i18n/LocaleContext'
 
-const schema = z.object({
+type ContactMode = 'guest' | 'owner'
+
+const guestSchema = z.object({
   name: z.string().min(2, 'Required'),
   email: z.string().email('Valid email required'),
   phone: z.string().max(20).optional(),
@@ -16,22 +18,24 @@ const schema = z.object({
   company: z.string().max(200).optional(),
 })
 
-type Fields = z.infer<typeof schema>
-type Errors = Partial<Record<keyof Fields | 'form', string>>
+const ownerSchema = z.object({
+  name: z.string().min(2, 'Required'),
+  email: z.string().email('Valid email required'),
+  phone: z.string().max(20).optional(),
+  propertyType: z.string().max(100).optional(),
+  propertyLocation: z.string().max(100).optional(),
+  message: z.string().max(500).optional(),
+  company: z.string().max(200).optional(),
+})
 
-const INITIAL: Fields = {
-  name: '',
-  email: '',
-  phone: '',
-  checkIn: '',
-  checkOut: '',
-  guests: '',
-  message: '',
-  company: '',
-}
+type GuestFields = z.infer<typeof guestSchema>
+type OwnerFields = z.infer<typeof ownerSchema>
+type Errors = Partial<Record<string, string>>
 
-const inputBase =
-  'w-full rounded-xl border bg-white px-4 py-3 text-sm text-ink placeholder:text-ink-muted outline-none transition-colors focus:ring-2'
+const INITIAL_GUEST: GuestFields = { name: '', email: '', phone: '', checkIn: '', checkOut: '', guests: '', message: '', company: '' }
+const INITIAL_OWNER: OwnerFields = { name: '', email: '', phone: '', propertyType: '', propertyLocation: '', message: '', company: '' }
+
+const inputBase = 'w-full rounded-xl border bg-white px-4 py-3 text-sm text-ink placeholder:text-ink-muted outline-none transition-colors focus:ring-2'
 const inputCls = (err: boolean) =>
   `${inputBase} ${err ? 'border-red-400 focus:ring-red-200' : 'border-slate-200 focus:border-accent focus:ring-accent/20'}`
 
@@ -46,92 +50,139 @@ function Field({ label, error, children }: { label: string; error?: string; chil
 }
 
 export function ContactForm() {
-  const [fields, setFields] = useState<Fields>(INITIAL)
+  const [mode, setMode] = useState<ContactMode>('guest')
+  const [guestFields, setGuestFields] = useState<GuestFields>(INITIAL_GUEST)
+  const [ownerFields, setOwnerFields] = useState<OwnerFields>(INITIAL_OWNER)
   const [errors, setErrors] = useState<Errors>({})
   const { locale, t } = useLocale()
   const f = t.contact.form
 
-  const set =
-    (key: keyof Fields) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setFields((prev) => ({ ...prev, [key]: e.target.value }))
+  const setGuest = (key: keyof GuestFields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setGuestFields((prev) => ({ ...prev, [key]: e.target.value }))
+
+  const setOwner = (key: keyof OwnerFields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setOwnerFields((prev) => ({ ...prev, [key]: e.target.value }))
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
-    const result = schema.safeParse(fields)
-    if (!result.success) {
-      const errs: Errors = {}
-      result.error.issues.forEach((issue) => {
-        errs[issue.path[0] as keyof Fields] = issue.message
-      })
-      setErrors(errs)
-      return
-    }
-
-    if (result.data.company?.trim()) {
-      setErrors({ form: f.submitError })
-      return
-    }
-
     setErrors({})
-    const data = result.data
-    const msg = buildContactMessage({
-      locale,
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      checkIn: data.checkIn,
-      checkOut: data.checkOut,
-      guests: typeof data.guests === 'number' ? data.guests : undefined,
-      message: data.message?.trim() || f.defaultMessage,
-    })
-    const url = buildWhatsAppUrl(msg)
 
-    if (!url) {
-      setErrors({ form: f.submitError })
-      return
+    if (mode === 'guest') {
+      const result = guestSchema.safeParse(guestFields)
+      if (!result.success) {
+        const errs: Errors = {}
+        result.error.issues.forEach((issue) => { errs[issue.path[0] as string] = issue.message })
+        setErrors(errs)
+        return
+      }
+      if (result.data.company?.trim()) { setErrors({ form: f.submitError }); return }
+      const data = result.data
+      const msg = buildContactMessage({
+        locale, name: data.name, email: data.email, phone: data.phone,
+        checkIn: data.checkIn, checkOut: data.checkOut,
+        guests: typeof data.guests === 'number' ? data.guests : undefined,
+        message: data.message?.trim() || f.defaultMessage,
+      })
+      const url = buildWhatsAppUrl(msg)
+      if (!url) { setErrors({ form: f.submitError }); return }
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } else {
+      const result = ownerSchema.safeParse(ownerFields)
+      if (!result.success) {
+        const errs: Errors = {}
+        result.error.issues.forEach((issue) => { errs[issue.path[0] as string] = issue.message })
+        setErrors(errs)
+        return
+      }
+      if (result.data.company?.trim()) { setErrors({ form: f.submitError }); return }
+      const data = result.data
+      const msg = buildOwnerMessage({
+        locale, name: data.name, email: data.email, phone: data.phone,
+        propertyType: data.propertyType, propertyLocation: data.propertyLocation,
+        message: data.message?.trim() || f.ownerDefaultMessage,
+      })
+      const url = buildWhatsAppUrl(msg)
+      if (!url) { setErrors({ form: f.submitError }); return }
+      window.open(url, '_blank', 'noopener,noreferrer')
     }
-
-    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      {/* Toggle */}
+      <div className="flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+        <button
+          type="button"
+          onClick={() => { setMode('guest'); setErrors({}) }}
+          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${mode === 'guest' ? 'bg-white text-ink shadow-sm' : 'text-ink-muted hover:text-ink'}`}
+        >
+          {f.toggleGuest}
+        </button>
+        <button
+          type="button"
+          onClick={() => { setMode('owner'); setErrors({}) }}
+          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${mode === 'owner' ? 'bg-white text-ink shadow-sm' : 'text-ink-muted hover:text-ink'}`}
+        >
+          {f.toggleOwner}
+        </button>
+      </div>
+
+      {/* Shared fields */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label={f.name} error={errors.name}>
-          <input type="text" value={fields.name as string} onChange={set('name')} maxLength={100} placeholder={f.namePlaceholder} className={inputCls(!!errors.name)} />
+          <input type="text" value={mode === 'guest' ? guestFields.name : ownerFields.name} onChange={mode === 'guest' ? setGuest('name') : setOwner('name')} maxLength={100} placeholder={f.namePlaceholder} className={inputCls(!!errors.name)} />
         </Field>
         <Field label={f.email} error={errors.email}>
-          <input type="email" value={fields.email as string} onChange={set('email')} maxLength={100} placeholder={f.emailPlaceholder} className={inputCls(!!errors.email)} />
+          <input type="email" value={mode === 'guest' ? guestFields.email : ownerFields.email} onChange={mode === 'guest' ? setGuest('email') : setOwner('email')} maxLength={100} placeholder={f.emailPlaceholder} className={inputCls(!!errors.email)} />
         </Field>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label={f.phone}>
-          <input type="tel" value={fields.phone as string} onChange={set('phone')} maxLength={20} placeholder={f.phonePlaceholder} className={inputCls(false)} />
-        </Field>
-        <Field label={f.guests}>
-          <input type="number" value={fields.guests as string} onChange={set('guests')} min={1} max={20} placeholder={f.guestsPlaceholder} className={inputCls(false)} />
-        </Field>
-      </div>
+      <Field label={f.phone}>
+        <input type="tel" value={mode === 'guest' ? (guestFields.phone ?? '') : (ownerFields.phone ?? '')} onChange={mode === 'guest' ? setGuest('phone') : setOwner('phone')} maxLength={20} placeholder={f.phonePlaceholder} className={inputCls(false)} />
+      </Field>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field label={f.checkIn}>
-          <input type="date" value={fields.checkIn as string} onChange={set('checkIn')} className={inputCls(false)} />
-        </Field>
-        <Field label={f.checkOut}>
-          <input type="date" value={fields.checkOut as string} onChange={set('checkOut')} className={inputCls(false)} />
-        </Field>
-      </div>
+      {/* Guest-only fields */}
+      {mode === 'guest' && (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label={f.checkIn}>
+              <input type="date" value={guestFields.checkIn ?? ''} onChange={setGuest('checkIn')} className={inputCls(false)} />
+            </Field>
+            <Field label={f.checkOut}>
+              <input type="date" value={guestFields.checkOut ?? ''} onChange={setGuest('checkOut')} className={inputCls(false)} />
+            </Field>
+          </div>
+          <Field label={f.guests}>
+            <input type="number" value={guestFields.guests as string} onChange={setGuest('guests')} min={1} max={20} placeholder={f.guestsPlaceholder} className={inputCls(false)} />
+          </Field>
+        </>
+      )}
+
+      {/* Owner-only fields */}
+      {mode === 'owner' && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label={f.propertyType}>
+            <input type="text" value={ownerFields.propertyType ?? ''} onChange={setOwner('propertyType')} maxLength={100} placeholder={f.propertyTypePlaceholder} className={inputCls(false)} />
+          </Field>
+          <Field label={f.propertyLocation}>
+            <input type="text" value={ownerFields.propertyLocation ?? ''} onChange={setOwner('propertyLocation')} maxLength={100} placeholder={f.propertyLocationPlaceholder} className={inputCls(false)} />
+          </Field>
+        </div>
+      )}
 
       <Field label={f.message} error={errors.message}>
-        <textarea value={fields.message as string} onChange={set('message')} maxLength={500} rows={4} placeholder={f.messagePlaceholder} className={`${inputCls(!!errors.message)} resize-none`} />
+        <textarea
+          value={mode === 'guest' ? (guestFields.message ?? '') : (ownerFields.message ?? '')}
+          onChange={mode === 'guest' ? setGuest('message') : setOwner('message')}
+          maxLength={500} rows={4}
+          placeholder={mode === 'guest' ? f.messagePlaceholder : f.ownerMessagePlaceholder}
+          className={`${inputCls(!!errors.message)} resize-none`}
+        />
       </Field>
 
       <div className="hidden" aria-hidden="true">
         <label htmlFor="company-field">{f.honeypotLabel}</label>
-        <input id="company-field" type="text" value={fields.company as string} onChange={set('company')} tabIndex={-1} autoComplete="off" />
+        <input id="company-field" type="text" value={mode === 'guest' ? (guestFields.company ?? '') : (ownerFields.company ?? '')} onChange={mode === 'guest' ? setGuest('company') : setOwner('company')} tabIndex={-1} autoComplete="off" />
       </div>
 
       {errors.form && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{errors.form}</p>}
