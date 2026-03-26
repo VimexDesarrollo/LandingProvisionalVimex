@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState } from 'react'
 import { Container } from '@/design-system/components/Container'
 import { Section } from '@/design-system/components/Section'
@@ -9,6 +10,8 @@ import { useLocale } from '@/i18n/LocaleContext'
 import { ContactForm } from '@/components/home/ContactForm'
 import { PhoneModal } from '@/components/home/PhoneModal'
 import type { FooterContactContent } from '@/types/content'
+
+const BG_IMAGE = 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2400&q=80'
 
 interface ContactSectionProps {
   content: FooterContactContent
@@ -24,20 +27,32 @@ export function ContactSection({ content }: ContactSectionProps) {
   )
 
   return (
-    <Section id="contact" aria-labelledby="contact-heading" className="bg-slate-50 py-20 md:py-28">
-      <Container>
+    <Section id="contact" aria-labelledby="contact-heading" className="relative overflow-hidden py-20 md:py-28">
+      {/* Background image */}
+      <Image
+        src={BG_IMAGE}
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover"
+        aria-hidden="true"
+      />
+      {/* Dark overlay */}
+      <div aria-hidden="true" className="absolute inset-0 bg-slate-900/60" />
+
+      <Container className="relative z-10">
         <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24">
 
           {/* Left — contact info */}
-          <div className="flex flex-col justify-center">
-            <Typography as="h2" variant="h2" id="contact-heading" className="mb-4">
+          <div className="flex flex-col justify-center rounded-2xl border border-blue-300/20 bg-blue-950/35 p-8 shadow-xl backdrop-blur-md md:p-10">
+            <Typography as="h2" variant="h2" id="contact-heading" className="mb-4 text-white">
               {t.contact.heading}
             </Typography>
-            <Typography className="mb-8 text-lg text-ink-soft">
+            <Typography className="mb-8 text-lg text-white/80">
               {t.contact.subtitle}
             </Typography>
 
-            <address className="not-italic mb-8 space-y-1 text-sm text-ink-soft">
+            <address className="not-italic mb-8 space-y-1 text-sm text-white/70">
               {content.addressLines.map((line) => (
                 <p key={line}>{line}</p>
               ))}
@@ -46,7 +61,7 @@ export function ContactSection({ content }: ContactSectionProps) {
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => setShowPhoneModal(true)}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-accent/30 bg-accent/8 px-6 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-white"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/15 px-6 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-slate-900"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 shrink-0" aria-hidden="true">
                   <path fillRule="evenodd" d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z" clipRule="evenodd" />
@@ -56,7 +71,7 @@ export function ContactSection({ content }: ContactSectionProps) {
 
               <a
                 href={`mailto:${content.email}`}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/15 px-6 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-slate-900"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 shrink-0" aria-hidden="true">
                   <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
@@ -82,8 +97,8 @@ export function ContactSection({ content }: ContactSectionProps) {
           </div>
 
           {/* Right — form */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm md:p-10">
-            <Typography as="h3" variant="h3" className="mb-6">
+          <div className="rounded-2xl border border-blue-300/20 bg-blue-950/35 p-8 shadow-xl backdrop-blur-md md:p-10">
+            <Typography as="h3" variant="h3" className="mb-6 text-white">
               {t.contact.sendMessage}
             </Typography>
             <ContactForm />

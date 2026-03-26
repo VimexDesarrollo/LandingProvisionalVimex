@@ -35,14 +35,14 @@ type Errors = Partial<Record<string, string>>
 const INITIAL_GUEST: GuestFields = { name: '', email: '', phone: '', checkIn: '', checkOut: '', guests: '', message: '', company: '' }
 const INITIAL_OWNER: OwnerFields = { name: '', email: '', phone: '', propertyType: '', propertyLocation: '', message: '', company: '' }
 
-const inputBase = 'w-full rounded-xl border bg-white px-4 py-3 text-sm text-ink placeholder:text-ink-muted outline-none transition-colors focus:ring-2'
+const inputBase = 'w-full rounded-xl border bg-white/10 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none transition-colors focus:ring-2 backdrop-blur-sm'
 const inputCls = (err: boolean) =>
-  `${inputBase} ${err ? 'border-red-400 focus:ring-red-200' : 'border-slate-200 focus:border-accent focus:ring-accent/20'}`
+  `${inputBase} ${err ? 'border-red-400/60 focus:ring-red-400/30' : 'border-white/20 focus:border-white/50 focus:ring-white/10'}`
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{label}</label>
+      <label className="text-xs font-semibold uppercase tracking-wide text-white/70">{label}</label>
       {children}
       {error && <span className="text-xs text-red-500">{error}</span>}
     </div>
@@ -110,18 +110,18 @@ export function ContactForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {/* Toggle */}
-      <div className="flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+      <div className="flex rounded-xl border border-white/20 bg-white/10 p-1 backdrop-blur-sm">
         <button
           type="button"
           onClick={() => { setMode('guest'); setErrors({}) }}
-          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${mode === 'guest' ? 'bg-white text-ink shadow-sm' : 'text-ink-muted hover:text-ink'}`}
+          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${mode === 'guest' ? 'bg-white/25 text-white shadow-sm' : 'text-white/50 hover:text-white/80'}`}
         >
           {f.toggleGuest}
         </button>
         <button
           type="button"
           onClick={() => { setMode('owner'); setErrors({}) }}
-          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${mode === 'owner' ? 'bg-white text-ink shadow-sm' : 'text-ink-muted hover:text-ink'}`}
+          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${mode === 'owner' ? 'bg-white/25 text-white shadow-sm' : 'text-white/50 hover:text-white/80'}`}
         >
           {f.toggleOwner}
         </button>

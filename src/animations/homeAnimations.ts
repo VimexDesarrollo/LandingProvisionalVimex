@@ -264,6 +264,34 @@ export function animateWordColorScroll(element: HTMLElement, options: AnimationO
   }
 }
 
+export function animateCardDeck(wrapper: HTMLElement, selector: string, options: AnimationOptions): () => void {
+  if (options.reducedMotion) return () => undefined
+
+  const context = gsap.context(() => {
+    const cards = gsap.utils.toArray<HTMLElement>(selector)
+    const sectionH = window.innerHeight * 0.9
+
+    cards.forEach((card, i) => {
+      // Last card stays — it's the final reveal
+      if (i === cards.length - 1) return
+
+      // Each card peels upward off the stack as user scrolls through its section
+      gsap.to(card, {
+        yPercent: -115,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: wrapper,
+          start: () => `top+=${i * sectionH} top`,
+          end: () => `top+=${(i + 0.85) * sectionH} top`,
+          scrub: 1,
+        },
+      })
+    })
+  })
+
+  return () => context.revert()
+}
+
 export function animateStackedOverlay(sectionA: HTMLElement, sectionB: HTMLElement, options: AnimationOptions): () => void {
   if (options.reducedMotion) return () => undefined
 
