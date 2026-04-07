@@ -43,7 +43,6 @@ export const propertyMock: Property = {
     'Fully equipped kitchen',
     'Washer and dryer',
     'Dedicated workspace',
-    '24/7 concierge support',
   ],
   latitude: 20.6296,
   longitude: -87.0739,

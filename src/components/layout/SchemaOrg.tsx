@@ -95,14 +95,6 @@ export function SchemaOrg() {
           },
           {
             '@type': 'Question',
-            name: 'Is 24/7 support available during my stay?',
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Our bilingual team is available around the clock to assist with any questions, emergencies, or special requests — from restaurant recommendations to urgent maintenance issues.',
-            },
-          },
-          {
-            '@type': 'Question',
             name: 'How far is Playa del Carmen from Cancún airport?',
             acceptedAnswer: {
               '@type': 'Answer',

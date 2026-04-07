@@ -30,7 +30,6 @@ export const en = {
       { title: 'Guest Management', description: 'From booking inquiries to seamless check-ins and personalized support, we ensure every guest enjoys a memorable stay.' },
       { title: 'Marketing & Booking', description: 'Strategic listing optimization, professional photography, and dynamic pricing to achieve maximum occupancy and revenue.' },
       { title: 'Financial Reporting', description: 'Clear, transparent financial statements, detailed performance insights, and easy access to all your property\'s data.' },
-      { title: '24/7 Support', description: 'Round-the-clock assistance and peace of mind for both property owners and guests, no matter the time zone.' },
     ],
   },
   stats: {
@@ -80,7 +79,6 @@ export const en = {
       { q: 'What areas of the Riviera Maya do you cover?', a: 'We specialize in Playa del Carmen and its most sought-after communities — Playacar Fase 1 & 2, Coco Bay, Mamitas Beach, and the Little Italy district. We also have properties in Tulum and Akumal.' },
       { q: 'Do you offer property management services?', a: 'Yes. We offer full-service property management including guest communications, maintenance coordination, professional marketing, dynamic pricing strategy, and detailed financial reporting — all designed to maximize your rental income while you enjoy completely stress-free ownership.' },
       { q: 'What is your cancellation policy?', a: 'Cancellation terms vary by property and are clearly disclosed before any booking is confirmed. We strongly encourage guests to review the specific policy for their rental and to contact our team with any questions before finalizing a reservation.' },
-      { q: 'Is 24/7 support available during my stay?', a: 'Absolutely. Our bilingual team is available around the clock to assist with any questions, emergencies, or special requests — from restaurant recommendations and local tips to urgent maintenance issues. You are never alone during your stay.' },
       { q: 'What languages does the Vimex team speak?', a: 'Our entire staff is fully bilingual in English and Spanish, ensuring clear and friendly communication for guests and property owners from both North America and Mexico.' },
       { q: 'How far is Playa del Carmen from Cancún airport?', a: 'Playa del Carmen is approximately 60 km south of Cancún International Airport — about a 45-minute drive via the federal highway. We can recommend trusted private transportation services to get you to your rental safely and comfortably.' },
     ],
@@ -153,7 +151,6 @@ export const es: typeof en = {
       { title: 'Gestión de Huéspedes', description: 'Desde consultas de reserva hasta check-ins sin contratiempos y atención personalizada, garantizamos que cada huésped disfrute una estancia memorable.' },
       { title: 'Marketing y Reservas', description: 'Optimización estratégica de anuncios, fotografía profesional y precios dinámicos para lograr la máxima ocupación e ingresos.' },
       { title: 'Reportes Financieros', description: 'Estados financieros claros y transparentes, información detallada del rendimiento y acceso fácil a todos los datos de tu propiedad.' },
-      { title: 'Soporte 24/7', description: 'Asistencia las 24 horas del día para propietarios y huéspedes, sin importar la zona horaria.' },
     ],
   },
   stats: {
@@ -203,7 +200,6 @@ export const es: typeof en = {
       { q: '¿Qué áreas de la Riviera Maya cubren?', a: 'Nos especializamos en Playa del Carmen y sus comunidades más exclusivas — Playacar Fase 1 y 2, Coco Bay, Mamitas Beach y el distrito Little Italy. También contamos con propiedades en Tulum y Akumal.' },
       { q: '¿Ofrecen servicios de administración de propiedades?', a: 'Sí. Ofrecemos administración de propiedades integral que incluye comunicación con huéspedes, coordinación de mantenimiento, marketing profesional, estrategia de precios dinámicos y reportes financieros detallados — todo diseñado para maximizar tus ingresos mientras disfrutas de una propiedad sin complicaciones.' },
       { q: '¿Cuál es su política de cancelación?', a: 'Los términos de cancelación varían según la propiedad y se informan claramente antes de confirmar cualquier reserva. Recomendamos encarecidamente a los huéspedes revisar la política específica de su renta y contactar a nuestro equipo con cualquier duda antes de finalizar la reserva.' },
-      { q: '¿Hay soporte disponible las 24 horas durante mi estancia?', a: 'Absolutamente. Nuestro equipo bilingüe está disponible las 24 horas para asistirte con cualquier pregunta, emergencia o solicitud especial — desde recomendaciones de restaurantes hasta problemas urgentes de mantenimiento. Nunca estarás solo durante tu estancia.' },
       { q: '¿Qué idiomas habla el equipo de Vimex?', a: 'Todo nuestro personal es completamente bilingüe en inglés y español, garantizando una comunicación clara y amistosa para huéspedes y propietarios de Norteamérica y México.' },
       { q: '¿Qué tan lejos está Playa del Carmen del aeropuerto de Cancún?', a: 'Playa del Carmen está aproximadamente a 60 km al sur del Aeropuerto Internacional de Cancún — unos 45 minutos en coche por la carretera federal. Podemos recomendar servicios de transporte privado de confianza para llevarte a tu renta de forma segura y cómoda.' },
     ],

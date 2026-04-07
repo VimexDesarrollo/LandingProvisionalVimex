@@ -379,7 +379,7 @@ export function ResidencesPage() {
             Luxury vacation rentals in Playa del Carmen
           </Typography>
           <Typography className="max-w-3xl text-lg text-white/85 md:text-xl">
-            Filter by dates, amenities, and capacity to secure the perfect stay with 24/7 concierge support.
+            Filter by dates, amenities, and capacity to secure the perfect stay.
           </Typography>
           <div className="flex flex-wrap gap-3 pt-2">
             <ButtonLink
