@@ -70,3 +70,19 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+/* Guesty search widget — font + sizing overrides */
+#search-widget_IO312PWQ,
+#search-widget_IO312PWQ * {
+  font-family: 'Manrope', sans-serif !important;
+  box-sizing: border-box;
+}
+
+#search-widget_IO312PWQ > div {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+}

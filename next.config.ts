@@ -1,6 +1,9 @@
 import type { NextConfig } from 'next'
 
 const distDir = process.env.NEXT_DIST_DIR?.trim()
+const isDev = process.env.NODE_ENV === 'development'
+
+const devConnectSrc = isDev ? ' http://localhost:* http://127.0.0.1:*' : ''
 
 const securityHeaders = [
   { key: 'X-DNS-Prefetch-Control', value: 'on' },
@@ -16,11 +19,12 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com",
-      "connect-src 'self' https://api.vimexmx.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://s3.amazonaws.com https://www.googletagmanager.com https://www.google-analytics.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://s3.amazonaws.com",
+      "font-src 'self' https://fonts.gstatic.com https://s3.amazonaws.com",
+      "img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://s3.amazonaws.com https://*.guestybookings.com https://www.googletagmanager.com",
+      `connect-src 'self' https://api.vimexmx.com https://s3.amazonaws.com https://*.guestybookings.com https://app.guesty.com https://www.google-analytics.com${devConnectSrc}`,
+      "frame-src 'self' https://*.guestybookings.com https://www.googletagmanager.com",
       "frame-ancestors 'none'",
     ].join('; '),
   },
